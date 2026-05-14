@@ -1,12 +1,21 @@
-name: Deploy reference site (GitHub Pages)
+name: Web reference (build + deploy to Pages)
 
 on:
+  # PR: 빌드만 (CI 스모크 테스트). PR 화면에 체크로 노출된다.
+  pull_request:
+    branches: [main]
+    paths:
+      - "web/**"
+      - "data/**"
+      - ".github/workflows/deploy-web.yml"
+  # main 푸시: 빌드 + Pages 배포
   push:
     branches: [main]
     paths:
       - "web/**"
       - "data/**"
       - ".github/workflows/deploy-web.yml"
+  # 수동 실행
   workflow_dispatch:
 
 permissions:
@@ -16,7 +25,7 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -39,13 +48,17 @@ jobs:
       - name: Build
         run: npm run build
 
-      - uses: actions/configure-pages@v5
+      # Pages 배포용 아티팩트는 main 푸시·수동 실행 때만 만든다.
+      - if: github.event_name != 'pull_request'
+        uses: actions/configure-pages@v5
 
-      - uses: actions/upload-pages-artifact@v3
+      - if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
         with:
           path: web/dist
 
   deploy:
+    if: github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
     environment:
