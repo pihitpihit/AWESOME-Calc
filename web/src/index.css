@@ -4,16 +4,23 @@
 
 @layer base {
   /*
-   * 모바일에서 자식 요소가 viewport 폭을 넘기더라도 페이지 전체가
-   * 좌우로 스크롤되지 않게 차단. `clip` 은 `hidden` 과 달리 자식의
-   * sticky/fixed 포지셔닝을 깨지 않는다.
+   * 모바일 가로 스크롤 차단.
+   *
+   * - `clip` 은 iOS Safari 14 이하에서 미지원이라 `hidden` 으로 fallback.
+   *   sticky 가 깨질 가능성이 있어 함께 `position: relative` 명시.
+   * - 자식 어디선가 너비를 초과하더라도 페이지 자체는 흔들리지 않게.
+   * - `overscroll-behavior-x: none` 으로 좌우 끌어당김 차단.
    */
-  html,
-  body {
-    overflow-x: clip;
+  html {
+    overflow-x: hidden;
     max-width: 100vw;
+    overscroll-behavior-x: none;
   }
   body {
+    overflow-x: hidden;
+    max-width: 100vw;
+    position: relative;
+    overscroll-behavior-x: none;
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI",
       "Pretendard", "Noto Sans KR", system-ui, sans-serif;
   }
@@ -21,10 +28,7 @@
     @apply text-ficsit-orange hover:underline;
   }
 
-  /*
-   * xyflow: edges 레이어를 노드 위로 올린다. 노드 우회 라우팅이 끝점에서
-   * 미세하게 노드에 닿더라도 가시성 확보.
-   */
+  /* xyflow: edges 레이어를 노드 위로 — 끝점 가시성 */
   .react-flow__edges {
     z-index: 1001 !important;
   }

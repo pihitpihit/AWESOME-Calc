@@ -19,21 +19,21 @@ export function ItemDetail() {
 
   return (
     <article className="space-y-5">
-      <header className="flex items-start gap-4">
+      <header className="flex items-start gap-4 min-w-0">
         <img
           src={iconUrl(item.slug)}
           alt={item.name.en}
           width={96}
           height={96}
-          className="rounded-md bg-ficsit-panel border border-ficsit-border"
+          className="rounded-md bg-ficsit-panel border border-ficsit-border shrink-0"
         />
-        <div className="min-w-0">
-          <h1 className="text-3xl font-bold">{displayName(item.name)}</h1>
-          <p className="text-zinc-400">{item.name.en}</p>
-          <div className="flex flex-wrap gap-1.5 mt-2">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-2xl sm:text-3xl font-bold break-words">{displayName(item.name)}</h1>
+          <p className="text-zinc-400 break-words">{item.name.en}</p>
+          <div className="flex flex-wrap gap-1.5 mt-2 min-w-0">
             <span className="chip">{CATEGORY_LABELS[item.category].ko}</span>
             {item.is_fluid && <span className="chip">유체</span>}
-            <span className="chip font-mono text-zinc-400">{item.class_name}</span>
+            <span className="chip font-mono text-zinc-400 max-w-full truncate">{item.class_name}</span>
           </div>
         </div>
       </header>
