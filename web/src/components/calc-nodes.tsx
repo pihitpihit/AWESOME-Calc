@@ -15,7 +15,11 @@ export function ItemFlowNode({ data }: { data: { item: Item; isRoot?: boolean } 
       <Handle type="target" position={Position.Bottom} className="!opacity-0" />
       <Link
         to={`/items/${item.slug}`}
+        // nodrag/nopan: xyflow 의 pan/drag 핸들러가 touch 이벤트를 흡수하지
+        // 않게 한다 (모바일 탭 작동 보장). touch-manipulation: 더블탭 줌
+        // 지연 제거.
         className={[
+          "nodrag nopan touch-manipulation",
           "block rounded-full bg-ficsit-panel border-2",
           isRoot ? "border-ficsit-orange ring-2 ring-ficsit-orange/30" : "border-ficsit-border",
           "w-16 h-16 flex items-center justify-center no-underline hover:border-ficsit-orange",
@@ -28,7 +32,7 @@ export function ItemFlowNode({ data }: { data: { item: Item; isRoot?: boolean } 
           alt={item.name.en}
           width={44}
           height={44}
-          className="rounded-full"
+          className="rounded-full pointer-events-none"
         />
       </Link>
       <div className="mt-1 text-[11px] text-zinc-200 max-w-[120px] text-center leading-tight truncate">
@@ -58,8 +62,11 @@ export function RecipeFlowNode({ data }: { data: RecipeFlowNodeData }) {
           e.stopPropagation();
           onPick(outputItemClass);
         }}
-        className="text-left block rounded-lg border-2 border-ficsit-border bg-ficsit-panel px-3 py-2 hover:border-ficsit-orange min-w-[180px] cursor-pointer"
-        title="클릭해서 다른 레시피 후보 보기"
+        // nodrag/nopan: xyflow 의 pan/drag 가 노드 위 touch 를 흡수하지 못하게
+        // 막아 모바일에서 탭이 정상 작동하게 한다.
+        // touch-manipulation: 더블탭 줌 지연 제거.
+        className="nodrag nopan touch-manipulation text-left block rounded-lg border-2 border-ficsit-border bg-ficsit-panel px-3 py-2 hover:border-ficsit-orange active:border-ficsit-orange min-w-[180px] cursor-pointer"
+        title="다른 레시피 후보 보기"
       >
         <div className="text-xs text-zinc-400 uppercase tracking-wide">
           {buildingShort || "조립"}
@@ -67,7 +74,7 @@ export function RecipeFlowNode({ data }: { data: RecipeFlowNodeData }) {
         <div className="text-sm text-zinc-100 leading-tight">{displayName(recipe.name)}</div>
         <div className="flex items-center gap-1.5 mt-1">
           {recipe.alternate && <span className="chip-alt text-[10px]">대체</span>}
-          <span className="text-[10px] text-zinc-500">클릭하여 변경</span>
+          <span className="text-[10px] text-zinc-500">눌러서 변경</span>
         </div>
       </button>
       <Handle type="source" position={Position.Top} className="!opacity-0" />
