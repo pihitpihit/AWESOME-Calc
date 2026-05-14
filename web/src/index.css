@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI",
+      "Pretendard", "Noto Sans KR", system-ui, sans-serif;
+  }
+  a {
+    @apply text-ficsit-orange hover:underline;
+  }
+}
+
+@layer components {
+  .panel {
+    @apply rounded-md border border-ficsit-border bg-ficsit-panel;
+  }
+  .chip {
+    @apply inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium border border-ficsit-border bg-zinc-800/60;
+  }
+  .chip-alt {
+    @apply chip border-ficsit-orange/40 text-ficsit-orange bg-ficsit-orange/10;
+  }
+  .kbd {
+    @apply rounded border border-zinc-600 bg-zinc-800 px-1.5 py-0.5 text-[11px] font-mono text-zinc-300;
+  }
+}
