@@ -10,6 +10,15 @@
   a {
     @apply text-ficsit-orange hover:underline;
   }
+
+  /*
+   * xyflow: 라우팅이 노드를 피하긴 하지만 fallback 또는 곡선 보간 결과로
+   * 라인이 일부 노드 외곽에 미세하게 닿을 수 있다. edges 레이어를 node 위로
+   * 올려서 가시성 보장 (그림자 path 와 함께).
+   */
+  .react-flow__edges {
+    z-index: 1001 !important;
+  }
 }
 
 @layer components {

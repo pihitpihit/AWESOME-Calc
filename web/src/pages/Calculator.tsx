@@ -33,7 +33,17 @@ function nodeSize(kind: "item" | "recipe") {
 
 function layout(graph: CalcGraph, onPick: RecipeFlowNodeData["onPick"]) {
   const g = new dagre.graphlib.Graph();
-  g.setGraph({ rankdir: "BT", nodesep: 36, ranksep: 90, marginx: 24, marginy: 24 });
+  // edgesep 늘려 라인 간 간격 확보. ranker 'tight-tree' 가 layered 다이어그램에서
+  // edge waypoint 품질이 안정적.
+  g.setGraph({
+    rankdir: "BT",
+    nodesep: 48,
+    ranksep: 110,
+    edgesep: 20,
+    marginx: 24,
+    marginy: 24,
+    ranker: "tight-tree",
+  });
   g.setDefaultEdgeLabel(() => ({}));
 
   for (const n of graph.nodes) g.setNode(n.id, nodeSize(n.kind));
@@ -56,12 +66,20 @@ function layout(graph: CalcGraph, onPick: RecipeFlowNodeData["onPick"]) {
     };
   });
 
-  const edges: Edge[] = graph.edges.map((e) => ({
-    id: e.id,
-    source: e.source,
-    target: e.target,
-    type: "chevron",
-  }));
+  const edges: Edge[] = graph.edges.map((e) => {
+    // dagre 의 edge waypoint — 노드를 우회하는 라우팅.
+    // ChevronEdge 가 이걸 받아 catmull-rom 곡선으로 그린다.
+    const dEdge = g.edge(e.source, e.target);
+    const points = dEdge?.points ?? null;
+    return {
+      id: e.id,
+      source: e.source,
+      target: e.target,
+      type: "chevron",
+      zIndex: 10,
+      data: { points },
+    };
+  });
 
   return { nodes, edges };
 }
