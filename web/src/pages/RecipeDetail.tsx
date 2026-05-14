@@ -12,13 +12,13 @@ export function RecipeDetail() {
 
   return (
     <article className="space-y-5">
-      <header>
-        <h1 className="text-3xl font-bold flex items-center gap-2">
+      <header className="min-w-0">
+        <h1 className="text-2xl sm:text-3xl font-bold flex flex-wrap items-center gap-2 break-words">
           {displayName(r.name)}
           {r.alternate && <span className="chip-alt">대체</span>}
         </h1>
-        <p className="text-zinc-400">{r.name.en}</p>
-        <p className="font-mono text-xs text-zinc-500 mt-1">{r.class_name}</p>
+        <p className="text-zinc-400 break-words">{r.name.en}</p>
+        <p className="font-mono text-xs text-zinc-500 mt-1 break-all">{r.class_name}</p>
       </header>
 
       <Section title="획득 방법">

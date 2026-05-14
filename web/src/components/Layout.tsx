@@ -3,13 +3,14 @@ import { Sidebar } from "./Sidebar";
 
 export function Layout() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col overflow-x-hidden">
       <header className="border-b border-ficsit-border bg-ficsit-panel/80 backdrop-blur sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-4 h-12 flex items-center justify-between">
-          <NavLink to="/" className="font-bold tracking-wide text-ficsit-orange no-underline">
-            AWESOME-Calc <span className="text-zinc-400 font-normal text-sm">/ reference</span>
+        <div className="max-w-6xl mx-auto px-3 sm:px-4 h-12 flex items-center justify-between gap-3">
+          <NavLink to="/" className="font-bold tracking-wide text-ficsit-orange no-underline truncate">
+            AWESOME-Calc{" "}
+            <span className="text-zinc-400 font-normal text-sm hidden sm:inline">/ reference</span>
           </NavLink>
-          <nav className="flex gap-4 text-sm">
+          <nav className="flex gap-3 sm:gap-4 text-sm shrink-0">
             <TopLink to="/items">아이템</TopLink>
             <TopLink to="/recipes">레시피</TopLink>
             <TopLink to="/calc">계산기</TopLink>
@@ -17,9 +18,9 @@ export function Layout() {
         </div>
       </header>
 
-      <div className="flex-1 max-w-6xl mx-auto w-full grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 px-4 py-6">
+      <div className="flex-1 w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-[200px_minmax(0,1fr)] gap-6 px-3 sm:px-4 py-4 sm:py-6 overflow-x-hidden">
         <Sidebar />
-        <main className="min-w-0">
+        <main className="min-w-0 w-full overflow-x-hidden">
           <Outlet />
         </main>
       </div>
