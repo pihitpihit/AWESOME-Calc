@@ -218,10 +218,10 @@ items:
   Desc_SnowballProjectile_C: 눈덩이
   Desc_Snow_C: FICSMAS 눈
   Desc_HardDrive_C: 하드 드라이브
-  Desc_MercerSphere_C: 머서 스피어
-  Desc_SomerSloop_C: 소머슬룹
-  Desc_WAT1_C: 머서 스피어
-  Desc_WAT2_C: 소머슬룹
+  # 외계 수집품 — 실제 인게임 클래스는 Desc_WAT1_C / Desc_WAT2_C 다.
+  # Desc_MercerSphere_C / Desc_SomerSloop_C 는 상위 데이터에 존재하지 않는다.
+  Desc_WAT1_C: 소머 슬룹        # en: Somersloop
+  Desc_WAT2_C: 머서 구체        # en: Mercer Sphere
   Desc_ResourceSinkCoupon_C: FICSIT 쿠폰
 
   # 장비 (BP_ 접두사)
