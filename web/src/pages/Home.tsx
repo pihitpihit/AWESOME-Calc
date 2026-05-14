@@ -42,9 +42,10 @@ export function Home() {
       </Section>
 
       <Section title="빠른 시작" bodyClassName="flex flex-wrap gap-3">
-        <Link to="/items"><Button>아이템 전체 보기</Button></Link>
-        <Link to="/recipes?alt=true"><Button>대체 레시피만 보기</Button></Link>
-        <Link to="/recipes?source=mam"><Button>MAM 연구 잠금해제</Button></Link>
+        <Link to="/calc"><Button>계산기 — 의존성 다이어그램</Button></Link>
+        <Link to="/items"><Button variant="secondary">아이템 전체 보기</Button></Link>
+        <Link to="/recipes?alt=true"><Button variant="secondary">대체 레시피만 보기</Button></Link>
+        <Link to="/recipes?source=mam"><Button variant="secondary">MAM 연구 잠금해제</Button></Link>
       </Section>
     </div>
   );

@@ -10,6 +10,7 @@ export function Sidebar() {
           <SideLink to="/">홈</SideLink>
           <SideLink to="/items">아이템 전체 ({items.length})</SideLink>
           <SideLink to="/recipes">레시피 전체 ({recipes.length})</SideLink>
+          <SideLink to="/calc">계산기 — 의존성</SideLink>
         </Section>
 
         <Section title="카테고리">
