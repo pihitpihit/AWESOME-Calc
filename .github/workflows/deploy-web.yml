@@ -8,7 +8,7 @@ on:
       - "web/**"
       - "data/**"
       - ".github/workflows/deploy-web.yml"
-  # main 푸시: 빌드 + Pages 배포
+  # main 푸시: 빌드 + Pages 배포 + ntfy 알림
   push:
     branches: [main]
     paths:
@@ -26,6 +26,11 @@ permissions:
 concurrency:
   group: pages
   cancel-in-progress: false
+
+env:
+  # ntfy 채널. self-hosted 로 옮기려면 NTFY_SERVER 만 바꾸면 된다.
+  NTFY_SERVER: https://ntfy.sh
+  NTFY_TOPIC: awesome-calc
 
 jobs:
   build:
@@ -64,6 +69,44 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  notify:
+    # main 푸시(또는 수동 실행) 시에만 알림. PR 빌드는 알림 안 보낸다.
+    # build/deploy 가 실패해도 실행되도록 always().
+    if: always() && github.event_name != 'pull_request'
+    needs: [build, deploy]
+    runs-on: ubuntu-latest
+    steps:
+      - name: ntfy publish
+        env:
+          BUILD_RESULT: ${{ needs.build.result }}
+          DEPLOY_RESULT: ${{ needs.deploy.result }}
+          PAGE_URL: ${{ needs.deploy.outputs.page_url || 'https://pihitpihit.github.io/AWESOME-Calc/' }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          COMMIT_SHORT: ${{ github.sha }}
+        run: |
+          set -eu
+          NTFY_URL="${NTFY_SERVER}/${NTFY_TOPIC}"
+          SHORT_SHA="${COMMIT_SHORT:0:7}"
+          if [ "$BUILD_RESULT" = "success" ] && [ "$DEPLOY_RESULT" = "success" ]; then
+            curl -fsS \
+              -H "Title: AWESOME-Calc 배포 성공" \
+              -H "Tags: white_check_mark,rocket" \
+              -H "Click: ${PAGE_URL}" \
+              -H "Actions: view, 사이트 열기, ${PAGE_URL}; view, 워크플로우 로그, ${RUN_URL}" \
+              -d "main 자동 배포 완료 · ${SHORT_SHA} · ${{ github.actor }}" \
+              "$NTFY_URL"
+          else
+            curl -fsS \
+              -H "Title: AWESOME-Calc 배포 실패" \
+              -H "Tags: x,fire" \
+              -H "Priority: high" \
+              -H "Click: ${RUN_URL}" \
+              -d "build=${BUILD_RESULT}, deploy=${DEPLOY_RESULT} · ${SHORT_SHA} · 로그를 확인하라." \
+              "$NTFY_URL"
+          fi
