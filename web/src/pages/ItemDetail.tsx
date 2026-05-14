@@ -4,6 +4,9 @@ import {
   displayName,
   iconUrl,
   itemBySlug,
+  perMin,
+  rateLabel,
+  recipeByClass,
 } from "../lib/data";
 import { RecipeRow } from "../components/RecipeRow";
 import { Section } from "../components/Section";
@@ -68,12 +71,21 @@ export function ItemDetail() {
           <p className="text-zinc-500 text-sm">없음 (원자재이거나 채취 전용).</p>
         ) : (
           <ul className="space-y-1.5">
-            {item.produced_by.map((p) => (
-              <li key={p.recipe} className="flex items-center justify-between gap-3 text-sm">
-                <RecipeRow recipeClass={p.recipe} />
-                <span className="font-mono text-xs text-zinc-400">+{p.amount}</span>
-              </li>
-            ))}
+            {item.produced_by.map((p) => {
+              const r = recipeByClass.get(p.recipe);
+              const rate = r ? perMin(p.amount, r.time_seconds) : null;
+              return (
+                <li key={p.recipe} className="flex items-center justify-between gap-3 text-sm">
+                  <RecipeRow recipeClass={p.recipe} />
+                  <span className="font-mono text-xs text-zinc-400 whitespace-nowrap">
+                    +{p.amount}
+                    {rate !== null && (
+                      <span className="text-zinc-500 ml-1.5">({rate} {rateLabel(item)})</span>
+                    )}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         )}
       </Section>
@@ -90,12 +102,21 @@ export function ItemDetail() {
           <p className="text-zinc-500 text-sm">없음 (최종 산물 또는 미사용).</p>
         ) : (
           <ul className="space-y-1.5">
-            {item.consumed_in.map((c) => (
-              <li key={c.recipe} className="flex items-center justify-between gap-3 text-sm">
-                <RecipeRow recipeClass={c.recipe} />
-                <span className="font-mono text-xs text-zinc-400">−{c.amount}</span>
-              </li>
-            ))}
+            {item.consumed_in.map((c) => {
+              const r = recipeByClass.get(c.recipe);
+              const rate = r ? perMin(c.amount, r.time_seconds) : null;
+              return (
+                <li key={c.recipe} className="flex items-center justify-between gap-3 text-sm">
+                  <RecipeRow recipeClass={c.recipe} />
+                  <span className="font-mono text-xs text-zinc-400 whitespace-nowrap">
+                    −{c.amount}
+                    {rate !== null && (
+                      <span className="text-zinc-500 ml-1.5">({rate} {rateLabel(item)})</span>
+                    )}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         )}
       </Section>

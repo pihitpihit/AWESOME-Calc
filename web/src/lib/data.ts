@@ -28,6 +28,20 @@ export function classToRecipe(cn: string): Recipe | undefined {
   return recipeByClass.get(cn);
 }
 
+/**
+ * 분당 처리량 계산. amount × 60 / time(s). 소수점 둘째 자리에서 반올림.
+ * 유체도 동일 식 — 단위(개/분, m³/분)는 호출 측에서 라벨링.
+ */
+export function perMin(amount: number, timeSeconds: number): number {
+  if (!timeSeconds) return 0;
+  return Math.round((amount * 60 / timeSeconds) * 100) / 100;
+}
+
+/** 아이템이 유체이면 "m³/분", 아니면 "/분" 라벨. */
+export function rateLabel(item: Item | undefined): string {
+  return item?.is_fluid ? "m³/분" : "/분";
+}
+
 export const ITEM_CATEGORIES = [
   "raw",
   "ingot",
