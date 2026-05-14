@@ -6,18 +6,28 @@ import type { Item, Recipe } from "../types/data";
  * BT 레이아웃: rank 0 (원자재) 가 아래, 최종 산물이 위.
  * 모든 노드: target 핸들 = Bottom, source 핸들 = Top.
  *
- * 클릭 처리는 ReactFlow 의 onNodeClick 으로 일원화 — 모바일 touch 호환성.
- * 노드 자체는 div 로 단순화 (button/Link 사용 안 함, pan/drag 캡처 충돌
- * 회피). cursor-pointer 로 시각 단서, title 로 마우스 hover 도움말.
+ * 클릭 처리 — 다중 방어:
+ *  - ReactFlow 의 onNodeClick prop (Calculator 에서) 으로 일원 처리가 1차
+ *  - 그게 어떤 환경에서 안 먹어도 outer div 의 onClick 이 백업 (data.onClick)
+ *  - nodrag/nopan 클래스 + e.stopPropagation 으로 xyflow pan 핸들러가
+ *    touch 를 가로채지 않게 함
+ *  - cursor-pointer + title 로 시각·hover 단서
  */
+
+type ClickHandler = (e: React.MouseEvent) => void;
+
+function stop(e: React.SyntheticEvent) {
+  e.stopPropagation();
+}
 
 export interface ItemFlowNodeData {
   item: Item;
   isRoot?: boolean;
+  onClick?: ClickHandler;
 }
 
 export function ItemFlowNode({ data }: { data: ItemFlowNodeData }) {
-  const { item, isRoot } = data;
+  const { item, isRoot, onClick } = data;
 
   const ringClass = isRoot
     ? "border-ficsit-orange ring-2 ring-ficsit-orange/30"
@@ -25,12 +35,17 @@ export function ItemFlowNode({ data }: { data: ItemFlowNodeData }) {
   const fluidClass = item.is_fluid ? "ring-1 ring-cyan-400/40" : "";
 
   return (
-    <div className="flex flex-col items-center cursor-pointer">
+    <div
+      className="nodrag nopan touch-manipulation flex flex-col items-center cursor-pointer"
+      onClick={onClick}
+      onMouseDown={stop}
+      onTouchStart={stop}
+    >
       <Handle type="target" position={Position.Bottom} className="!opacity-0" />
       <div
         className={[
           "rounded-full bg-ficsit-panel border-2 w-16 h-16",
-          "flex items-center justify-center",
+          "flex items-center justify-center pointer-events-none",
           ringClass,
           fluidClass,
         ].join(" ")}
@@ -41,7 +56,7 @@ export function ItemFlowNode({ data }: { data: ItemFlowNodeData }) {
           alt={item.name.en}
           width={44}
           height={44}
-          className="rounded-full pointer-events-none"
+          className="rounded-full"
           draggable={false}
         />
       </div>
@@ -53,16 +68,21 @@ export function ItemFlowNode({ data }: { data: ItemFlowNodeData }) {
   );
 }
 
-/**
- * 비어있는 루트 노드 — 초기 화면. 탭하면 ItemBrowser 모달.
- * 클릭은 onNodeClick 에서 처리.
- */
-export function PlaceholderFlowNode() {
+export interface PlaceholderFlowNodeData {
+  onClick?: ClickHandler;
+}
+
+export function PlaceholderFlowNode({ data }: { data: PlaceholderFlowNodeData }) {
   return (
-    <div className="flex flex-col items-center cursor-pointer">
+    <div
+      className="nodrag nopan touch-manipulation flex flex-col items-center cursor-pointer"
+      onClick={data.onClick}
+      onMouseDown={stop}
+      onTouchStart={stop}
+    >
       <Handle type="target" position={Position.Bottom} className="!opacity-0" />
       <div
-        className="rounded-full bg-ficsit-panel border-2 border-dashed border-ficsit-orange w-16 h-16 flex items-center justify-center text-3xl text-ficsit-orange/80"
+        className="rounded-full bg-ficsit-panel border-2 border-dashed border-ficsit-orange w-16 h-16 flex items-center justify-center text-3xl text-ficsit-orange/80 pointer-events-none"
         title="아이템 선택"
       >
         +
@@ -80,26 +100,30 @@ export function PlaceholderFlowNode() {
 export interface RecipeFlowNodeData {
   recipe: Recipe;
   outputItemClass: string;
+  onClick?: ClickHandler;
 }
 
 export function RecipeFlowNode({ data }: { data: RecipeFlowNodeData }) {
-  const { recipe } = data;
+  const { recipe, onClick } = data;
   const building = recipe.produced_in[0] ?? "";
   const buildingShort = building.replace(/^Desc_/, "").replace(/_C$/, "");
   return (
-    <div className="flex flex-col items-stretch cursor-pointer">
+    <div
+      className="nodrag nopan touch-manipulation flex flex-col items-stretch cursor-pointer"
+      onClick={onClick}
+      onMouseDown={stop}
+      onTouchStart={stop}
+    >
       <Handle type="target" position={Position.Bottom} className="!opacity-0" />
       <div
-        className="rounded-lg border-2 border-ficsit-border bg-ficsit-panel px-3 py-2 min-w-[180px]"
+        className="rounded-lg border-2 border-ficsit-border bg-ficsit-panel px-3 py-2 min-w-[180px] pointer-events-none"
         title="다른 레시피 후보 보기"
       >
-        <div className="text-xs text-zinc-400 uppercase tracking-wide pointer-events-none">
+        <div className="text-xs text-zinc-400 uppercase tracking-wide">
           {buildingShort || "조립"}
         </div>
-        <div className="text-sm text-zinc-100 leading-tight pointer-events-none">
-          {displayName(recipe.name)}
-        </div>
-        <div className="flex items-center gap-1.5 mt-1 pointer-events-none">
+        <div className="text-sm text-zinc-100 leading-tight">{displayName(recipe.name)}</div>
+        <div className="flex items-center gap-1.5 mt-1">
           {recipe.alternate && <span className="chip-alt text-[10px]">대체</span>}
           <span className="text-[10px] text-zinc-500">눌러서 변경</span>
         </div>
