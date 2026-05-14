@@ -1,0 +1,333 @@
+# Satisfactory 아이템/레시피 한국어 매핑
+#
+# 형식:
+#   items:    <class_name>: <한글 명칭>
+#   recipes:  <class_name>: <한글 명칭>
+#
+# 주의:
+# - 게임 내 공식 번역(Coffee Stain / Crowdin) 기준을 따르려 노력했지만,
+#   샌드박스 환경 한계로 공식 ko 로컬라이제이션 원본 파일을 직접 가져오지 못했다.
+# - 일부 항목은 커뮤니티 표준 또는 직역이며, 추후 게임 내 표기와 맞추기 위한 PR을 환영한다.
+# - null 또는 누락된 항목은 추후 채워야 한다.
+
+items:
+  # 원자재
+  Desc_OreIron_C: 철광석
+  Desc_OreCopper_C: 구리 광석
+  Desc_Stone_C: 석회암
+  Desc_Coal_C: 석탄
+  Desc_OreGold_C: 카테륨 광석
+  Desc_Sulfur_C: 황
+  Desc_OreBauxite_C: 보크사이트
+  Desc_RawQuartz_C: 천연 석영
+  Desc_OreUranium_C: 우라늄
+  Desc_LiquidOil_C: 원유
+  Desc_Water_C: 물
+  Desc_NitrogenGas_C: 질소 가스
+  Desc_SAM_C: SAM
+
+  # 주괴
+  Desc_IronIngot_C: 철 주괴
+  Desc_CopperIngot_C: 구리 주괴
+  Desc_SteelIngot_C: 강철 주괴
+  Desc_AluminumIngot_C: 알루미늄 주괴
+  Desc_GoldIngot_C: 카테륨 주괴
+
+  # 기본 부품
+  Desc_IronPlate_C: 철판
+  Desc_IronRod_C: 철 막대
+  Desc_Wire_C: 전선
+  Desc_Cable_C: 케이블
+  Desc_Cement_C: 콘크리트
+  Desc_IronScrew_C: 나사
+  Desc_CopperSheet_C: 구리판
+  Desc_QuartzCrystal_C: 석영 결정
+  Desc_Silica_C: 실리카
+  Desc_AluminumCasing_C: 알루미늄 케이싱
+  Desc_AluminumPlate_C: 알루미늄 외장재
+  Desc_AluminumPlateReinforced_C: 열 차폐재
+  Desc_AluminumScrap_C: 알루미늄 조각
+  Desc_CopperDust_C: 구리 가루
+  Desc_GoldenNut_C: FICSMAS 황금 너트
+
+  # 중간 부품
+  Desc_IronPlateReinforced_C: 강화 철판
+  Desc_Rotor_C: 회전자
+  Desc_ModularFrame_C: 모듈식 골격
+  Desc_SteelPipe_C: 강철관
+  Desc_SteelPlate_C: 강철 빔
+  Desc_Stator_C: 고정자
+  Desc_Motor_C: 모터
+  Desc_ModularFrameHeavy_C: 중공업용 모듈식 골격
+  Desc_SteelPlateReinforced_C: 매장형 산업용 빔
+  Desc_ModularFrameFused_C: 융합 모듈식 골격
+
+  # 전자/통신
+  Desc_CircuitBoard_C: 회로 기판
+  Desc_CircuitBoardHighSpeed_C: AI 한정기
+  Desc_HighSpeedConnector_C: 초고속 커넥터
+  Desc_Computer_C: 컴퓨터
+  Desc_ComputerSuper_C: 슈퍼컴퓨터
+  Desc_CrystalOscillator_C: 수정 진동자
+  Desc_CoolingSystem_C: 냉각 시스템
+  Desc_HeatSink_C: 방열판
+  Desc_ModularFrameLightweight_C: 무게 절감 골격
+  Desc_RadioControlUnit_C: 무선 제어 장치
+  Desc_PressureConversionCube_C: 압력 변환 큐브
+  Desc_GoldenNutStatue_C: FICSMAS 황금 너트 동상
+
+  # 화학/유체
+  Desc_AluminaSolution_C: 산화알루미늄 용액
+  Desc_SulfuricAcid_C: 황산
+  Desc_NitricAcid_C: 질산
+  Desc_DissolvedSilica_C: 용해 실리카
+  Desc_HeavyOilResidue_C: 중질유 잔여물
+  Desc_LiquidOil_C: 원유
+  Desc_LiquidFuel_C: 액체 연료
+  Desc_LiquidTurboFuel_C: 액체 터보 연료
+  Desc_RocketFuel_C: 로켓 연료
+  Desc_IonizedFuel_C: 이온화 연료
+  Desc_Fuel_C: 포장된 연료
+  Desc_TurboFuel_C: 포장된 터보 연료
+  Desc_PackagedRocketFuel_C: 포장된 로켓 연료
+  Desc_PackagedIonizedFuel_C: 포장된 이온화 연료
+  Desc_PackagedAlumina_C: 포장된 산화알루미늄 용액
+  Desc_PackagedBiofuel_C: 포장된 액체 바이오 연료
+  Desc_PackagedNitricAcid_C: 포장된 질산
+  Desc_PackagedNitrogenGas_C: 포장된 질소 가스
+  Desc_PackagedOil_C: 포장된 원유
+  Desc_PackagedOilResidue_C: 포장된 중질유 잔여물
+  Desc_PackagedSulfuricAcid_C: 포장된 황산
+  Desc_PackagedWater_C: 포장된 물
+  Desc_FluidCanister_C: 빈 캐니스터
+  Desc_GasTank_C: 빈 가스 탱크
+
+  # 플라스틱/고무
+  Desc_Plastic_C: 플라스틱
+  Desc_Rubber_C: 고무
+  Desc_PolymerResin_C: 폴리머 수지
+  Desc_PetroleumCoke_C: 석유 코크스
+  Desc_CompactedCoal_C: 압축 석탄
+
+  # 우주 엘리베이터 부품
+  Desc_SpaceElevatorPart_1_C: 스마트 외장재
+  Desc_SpaceElevatorPart_2_C: 다용도 골격
+  Desc_SpaceElevatorPart_3_C: 자동 배선
+  Desc_SpaceElevatorPart_4_C: 모듈식 엔진
+  Desc_SpaceElevatorPart_5_C: 적응형 제어 장치
+  Desc_SpaceElevatorPart_6_C: 어셈블리 감독 시스템
+  Desc_SpaceElevatorPart_7_C: 자기장 발생기
+  Desc_SpaceElevatorPart_8_C: 열 추진 로켓
+  Desc_SpaceElevatorPart_9_C: 핵 파스타
+  Desc_SpaceElevatorPart_10_C: 탄도 워프 추진기
+  Desc_SpaceElevatorPart_11_C: AI 확장 서버
+  Desc_SpaceElevatorPart_12_C: 외계 전력 매트릭스
+
+  # 양자/v1.0+
+  Desc_TimeCrystal_C: 시간 결정
+  Desc_QuantumEnergy_C: 흥분된 광자 물질
+  Desc_Diamond_C: 다이아몬드
+  Desc_QuantumOscillator_C: 중첩 진동자
+  Desc_TemporalProcessor_C: 신경-양자 프로세서
+  Desc_SingularityCell_C: 특이점 셀
+  Desc_AlienPowerFuel_C: 외계 전력 매트릭스
+  Desc_DarkMatter_C: 암흑 물질 결정
+  Desc_DarkEnergy_C: 암흑 물질 잔여물
+  Desc_FicsiteIngot_C: 픽사이트 주괴
+  Desc_FicsiteMesh_C: 픽사이트 트라이고날
+  Desc_SAMIngot_C: 재구성된 SAM 변동
+  Desc_SAMFluctuator_C: SAM 변동기
+
+  # 핵
+  Desc_NuclearFuelRod_C: 우라늄 연료봉
+  Desc_NuclearCell_C: 봉입형 우라늄 셀
+  Desc_NonFissibleUranium_C: 비가분 우라늄
+  Desc_PlutoniumCell_C: 봉입형 플루토늄 셀
+  Desc_PlutoniumPellet_C: 플루토늄 알갱이
+  Desc_PlutoniumFuelRod_C: 플루토늄 연료봉
+  Desc_PlutoniumWaste_C: 플루토늄 폐기물
+  Desc_UraniumCell_C: 우라늄 연료 셀
+  Desc_NuclearWaste_C: 우라늄 폐기물
+  Desc_Ficsonium_C: 픽소늄
+  Desc_FicsoniumFuelRod_C: 픽소늄 연료봉
+
+  # 외계/생물
+  Desc_AlienDNACapsule_C: 외계 DNA 캡슐
+  Desc_AlienProtein_C: 외계 단백질
+  Desc_HatcherProtein_C: 해처 단백질
+  Desc_StingerProtein_C: 스팅어 단백질
+  Desc_HogProtein_C: 호그 단백질
+  Desc_SpitterProtein_C: 스피터 단백질
+  Desc_HatcherParts_C: 해처 잔해
+  Desc_StingerParts_C: 스팅어 잔해
+  Desc_HogParts_C: 호그 잔해
+  Desc_SpitterParts_C: 스피터 잔해
+  Desc_Crystal_C: 청색 동력 슬러그
+  Desc_Crystal_mk2_C: 황색 동력 슬러그
+  Desc_Crystal_mk3_C: 보라색 동력 슬러그
+  Desc_CrystalShard_C: 동력 파편
+  Desc_Mycelia_C: 균사체
+  Desc_Leaves_C: 잎
+  Desc_Wood_C: 나무
+  Desc_GenericBiomass_C: 바이오매스
+  Desc_Biofuel_C: 고체 바이오 연료
+  Desc_FlowerPetals_C: FICSMAS 사탕수수
+  Desc_Berry_C: 파레우
+
+  # 탄약
+  Desc_Rebar_C: 철근
+  Desc_RebarSpike_C: 분쇄 철근
+  Desc_RebarStunshot_C: 기절 철근
+  Desc_RebarExplosive_C: 폭발 철근
+  Desc_NobeliskExplosive_C: 노벨리스크
+  Desc_NobeliskShockwave_C: 펄스 노벨리스크
+  Desc_NobeliskCluster_C: 클러스터 노벨리스크
+  Desc_NobeliskGas_C: 가스 노벨리스크
+  Desc_NobeliskNuke_C: 핵 노벨리스크
+  Desc_Cartridge_C: 라이플 탄
+  Desc_CartridgeStandard_C: 라이플 탄
+  Desc_CartridgeChaos_C: 터보 라이플 탄
+  Desc_SpikedRebar_C: 분쇄 철근
+  Desc_RebarGun_C: 철근 권총
+
+  # 장비/도구
+  Desc_HazmatSuit_C: 방호복
+  Desc_HazmatFilter_C: 요오드 침투 필터
+  Desc_Filter_C: 가스 필터
+  Desc_Gasmask_C: 방독면
+  Desc_JetPack_C: 제트팩
+  Desc_HoverPack_C: 호버팩
+  Desc_Parachute_C: 낙하산
+  Desc_ObjectScanner_C: 물체 스캐너
+  Desc_ResourceMiner_C: 휴대용 채광기
+  Desc_GolfCart_C: 팩토리 카트
+  Desc_GolfCartGold_C: 황금 팩토리 카트
+  Desc_Beacon_C: 비콘
+  Desc_ZipLine_C: 집라인
+  Desc_BladeRunners_C: 블레이드 러너
+  Desc_Chainsaw_C: 사슬톱
+  Desc_NobeliskDetonator_C: 노벨리스크 폭파기
+  Desc_Rifle_C: 라이플
+  Desc_PortableMiner_C: 휴대용 채광기
+  Desc_NutritionalInhaler_C: 영양 흡입기
+  Desc_MedicinalInhaler_C: 의료 흡입기
+  Desc_HealthRegen_C: 의료 흡입기
+
+  # 특수/희귀
+  Desc_Gift_C: FICSMAS 선물
+  Desc_SnowballProjectile_C: 눈덩이
+  Desc_Snow_C: FICSMAS 눈
+  Desc_HardDrive_C: 하드 드라이브
+  Desc_MercerSphere_C: 머서 스피어
+  Desc_SomerSloop_C: 소머슬룹
+  Desc_WAT1_C: 머서 스피어
+  Desc_WAT2_C: 소머슬룹
+  Desc_ResourceSinkCoupon_C: FICSIT 쿠폰
+
+  # 장비 (BP_ 접두사)
+  BP_EqDescZipLine_C: 집라인
+  BP_EquipmentDescriptorGasmask_C: 방독면
+  BP_EquipmentDescriptorHazmatSuit_C: 방호복
+  BP_EquipmentDescriptorHoverPack_C: 호버팩
+  BP_EquipmentDescriptorJetPack_C: 제트팩
+  BP_EquipmentDescriptorJumpingStilts_C: 블레이드 러너
+  BP_EquipmentDescriptorNobeliskDetonator_C: 노벨리스크 폭파기
+  BP_EquipmentDescriptorObjectScanner_C: 물체 스캐너
+  BP_EquipmentDescriptorRifle_C: 라이플
+  BP_EquipmentDescriptorShockShank_C: 제노-재퍼
+  BP_EquipmentDescriptorStunSpear_C: 제노-배셔
+  BP_ItemDescriptorPortableMiner_C: 휴대용 채광기
+
+  # 추가 부품/탄약/장비
+  Desc_Battery_C: 배터리
+  Desc_HighSpeedWire_C: 퀵와이어
+  Desc_Fabric_C: 직물
+  Desc_Gunpowder_C: 흑색 화약
+  Desc_GunpowderMK2_C: 무연 화약
+  Desc_ElectromagneticControlRod_C: 전자기 제어봉
+  Desc_MotorLightweight_C: 터보 모터
+  Desc_LiquidBiofuel_C: 액체 바이오 연료
+  Desc_Medkit_C: 의료 흡입기
+  Desc_Nut_C: 베릴 너트
+  Desc_Shroom_C: 베이컨 아가리쿠스
+  Desc_CartridgeSmartProjectile_C: 유도 라이플 탄
+  Desc_RebarGunProjectile_C: 철근 권총
+  Desc_Rebar_Explosive_C: 폭발 철근
+  Desc_Rebar_Spreadshot_C: 분쇄 철근
+  Desc_Rebar_Stunshot_C: 기절 철근
+
+  # 게임 내부 가상 아이템 (전력/싱크 포인트 — 솔버 편의용 노드)
+  special__power: 전력
+  special__sinkPoint: 싱크 포인트
+
+recipes:
+  # 기본 — 시작부터
+  Recipe_IngotIron_C: 철 주괴
+  Recipe_IngotCopper_C: 구리 주괴
+  Recipe_IngotSteel_C: 강철 주괴
+  Recipe_IngotCaterium_C: 카테륨 주괴
+  Recipe_Concrete_C: 콘크리트
+  Recipe_IronPlate_C: 철판
+  Recipe_IronRod_C: 철 막대
+  Recipe_Wire_C: 전선
+  Recipe_Cable_C: 케이블
+  Recipe_Screw_C: 나사
+  Recipe_Rotor_C: 회전자
+  Recipe_ModularFrame_C: 모듈식 골격
+  Recipe_ReinforcedIronPlate_C: 강화 철판
+  Recipe_AluminumScrap_C: 알루미늄 조각
+  Recipe_AluminumIngot_C: 알루미늄 주괴
+  Recipe_AluminaSolution_C: 산화알루미늄 용액
+  Recipe_QuartzCrystal_C: 석영 결정
+  Recipe_Silica_C: 실리카
+  Recipe_Plastic_C: 플라스틱
+  Recipe_Rubber_C: 고무
+  Recipe_PolymerResin_C: 폴리머 수지
+  Recipe_PetroleumCoke_C: 석유 코크스
+  Recipe_LiquidFuel_C: 연료
+  Recipe_HeavyOilResidue_C: 중질유 잔여물
+  # 대체 레시피들 — 일부 시드 (전체는 추후 보강)
+  Recipe_Alternate_PureIronIngot_C: "대체: 순수 철 주괴"
+  Recipe_Alternate_PureCopperIngot_C: "대체: 순수 구리 주괴"
+  Recipe_Alternate_PureAluminumIngot_C: "대체: 순수 알루미늄 주괴"
+  Recipe_Alternate_PureCateriumIngot_C: "대체: 순수 카테륨 주괴"
+  Recipe_Alternate_PureQuartzCrystal_C: "대체: 순수 석영 결정"
+  Recipe_Alternate_SolidSteelIngot_C: "대체: 견고한 강철 주괴"
+  Recipe_Alternate_IronIngot_Basic_C: "대체: 기본 철 주괴"
+  Recipe_Alternate_IronAlloyIngot_C: "대체: 철 합금 주괴"
+  Recipe_Alternate_CopperAlloyIngot_C: "대체: 구리 합금 주괴"
+  Recipe_Alternate_CompactedSteelIngot_C: "대체: 압축 강철 주괴"
+  Recipe_Alternate_BoltedFrame_C: "대체: 볼트 골격"
+  Recipe_Alternate_Wire_1_C: "대체: 융합 전선"
+  Recipe_Alternate_Wire_2_C: "대체: 철 전선"
+  Recipe_Alternate_Cable_1_C: "대체: 절연 케이블"
+  Recipe_Alternate_Cable_2_C: "대체: 고무 가공 케이블"
+  Recipe_Alternate_Screw_C: "대체: 주조 나사"
+  Recipe_Alternate_Screw_2_C: "대체: 강철 나사"
+  Recipe_Alternate_Rotor_C: "대체: 구리 회전자"
+  Recipe_Alternate_Rotor_Steel_C: "대체: 강철 회전자"
+  Recipe_Alternate_ModularFrame_C: "대체: 강철식 모듈 골격"
+  Recipe_Alternate_ReinforcedIronPlate_1_C: "대체: 강화 철판 (접착)"
+  Recipe_Alternate_ReinforcedIronPlate_2_C: "대체: 강화 철판 (보강)"
+  Recipe_Alternate_RocketFuel_Nitro_C: "대체: 니트로 로켓 연료"
+  Recipe_Alternate_IonizedFuel_Dark_C: "대체: 암흑 이온화 연료"
+  Recipe_Alternate_TurboFuel_C: "대체: 터보 연료 (혼합)"
+  Recipe_Alternate_TurboBlendFuel_C: "대체: 터보 혼합 연료"
+  Recipe_Alternate_HeavyOilResidue_C: "대체: 폴리머 가공"
+  Recipe_Alternate_PlasticRecycled_C: "대체: 재활용 플라스틱"
+  Recipe_Alternate_RubberRecycled_C: "대체: 재활용 고무"
+
+  # 건축 — 빌딩 (참고용 일부)
+  Recipe_TradingPost_C: 허브
+  Recipe_SpaceElevator_C: 우주 엘리베이터
+  Recipe_SmelterMk1_C: 제련기
+  Recipe_FoundryMk1_C: 주조기
+  Recipe_AssemblerMk1_C: 조립기
+  Recipe_ConstructorMk1_C: 제작기
+  Recipe_ManufacturerMk1_C: 제조기
+  Recipe_RefineryMk1_C: 정제기
+  Recipe_PackagerMk1_C: 포장기
+  Recipe_BlenderMk1_C: 블렌더
+  Recipe_HadronCollider_C: 입자 가속기
+  Recipe_QuantumEncoder_C: 양자 부호화기
+  Recipe_Converter_C: 변환기
