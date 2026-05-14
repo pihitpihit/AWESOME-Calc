@@ -38,25 +38,20 @@ PC 게임 *Satisfactory*를 위한 헬퍼. 공장 설계 시 자주 마주치는
 
 ---
 
-## CLI (`cli/`)
-
-- **언어**: Python 3.11+
-- **플랫폼**: macOS / Linux / Windows
-- **현재 책임**: 정적 DB 빌드 (`cli/src/awesome_calc/build_db.py`).
-- **앞으로**:
-  - 레시피 그래프 / 처리량 솔버
-  - 시나리오 회귀 테스트
-  - 데이터 정규화 파이프라인
-
-자세한 정적 DB 명세는 [`data/README.md`](./data/README.md) 참고.
-
 ## Web reference (`web/`)
 
 - **스택**: Vite + React 18 + TypeScript + Tailwind
 - **UI 라이브러리**: [`pihitpihit/plastic`](https://github.com/pihitpihit/plastic) (Button, Card, Accordion 등)
+- **다이어그램**: [`@xyflow/react`](https://reactflow.dev/) + [`@dagrejs/dagre`](https://github.com/dagrejs/dagre) (계산기 페이지)
 - **데이터 소스**: 빌드 시 `data/items.yaml`, `data/recipes.yaml`, `data/icons/*` 를 인라인.
 - **배포**: GitHub Actions → GitHub Pages — `main` 브랜치 푸시 시 자동.
 - **URL**: <https://pihitpihit.github.io/AWESOME-Calc/>
+
+### 페이지 구성
+- `/` — 홈, 카테고리 요약
+- `/items`, `/items/:slug` — 아이템 인덱스/상세 (생산·소비 레시피 교차링크)
+- `/recipes`, `/recipes/:slug` — 레시피 인덱스/상세 (재료·산물·획득 출처, 분당 처리량)
+- `/calc/:slug` — **생산 의존성 다이어그램** (이 아이템을 만들기 위해 무엇이 필요한지)
 
 ### 로컬 실행
 
@@ -69,6 +64,17 @@ npm run preview    # 로컬 프리뷰
 ```
 
 `npm run build` 는 `prebuild` 단계에서 `data/icons` 를 `web/public/icons` 로 동기화한다.
+
+## 데이터 빌드 도구 (`cli/`)
+
+> 이전에는 “CLI” 위상의 별도 파트로 계획했으나, **계획을 철회**하고 현재는
+> 정적 DB 를 만들기 위한 **빌드 도구**만 남긴다. 솔버·계산 로직은
+> 웹 사이트(`web/`) 안에서 직접 구현한다.
+
+- **언어**: Python 3.11+ (빌드 도구 한정)
+- **역할**: `cli/sources/data.json` + `cli/i18n/ko.yaml` → `data/items.yaml`, `data/recipes.yaml` 재생성
+- **실행**: `python3 cli/src/awesome_calc/build_db.py`
+- 자세한 스키마: [`data/README.md`](./data/README.md)
 
 ## 앱 (`app/`, 미작업)
 
@@ -99,7 +105,7 @@ npm run preview    # 로컬 프리뷰
 AWESOME-Calc/
 ├── README.md
 ├── .github/workflows/deploy-web.yml
-├── cli/                ← Python: DB 빌드 + (앞으로) 솔버
+├── cli/                ← 데이터 빌드 도구 (Python)
 │   ├── i18n/ko.yaml
 │   ├── sources/data.json   (greeny/SatisfactoryTools 캐시)
 │   └── src/awesome_calc/build_db.py
@@ -108,7 +114,7 @@ AWESOME-Calc/
 │   ├── recipes.yaml
 │   ├── icons/*.png
 │   └── README.md
-├── web/                ← Vite + React + plastic 위키형 레퍼런스
+├── web/                ← Vite + React + plastic 위키형 레퍼런스 + 계산기
 │   ├── package.json
 │   ├── src/{pages,components,lib,types}/
 │   └── scripts/sync-icons.mjs
@@ -121,9 +127,10 @@ AWESOME-Calc/
 
 1. **Phase 0 — 기초** ✅ 도메인 모델 초안, 게임 데이터 수집·정규화
 2. **Phase 1 — Web Reference** ✅ 위키형 브라우저 + GH Pages 배포
-3. **Phase 2 — CLI 솔버**: 단일 아이템 처리량 계산, 레시피 트리, 자원 수지
-4. **Phase 3 — 앱 스택 결정** & MVP: 단순 계산 화면 1개
-5. **Phase 4 — 앱 확장**: 공장 저장, 결과 시각화, iPad 인터랙션 최적화
+3. **Phase 2 — 계산기 v1** ✅ 의존성 다이어그램 (이 아이템에 무엇이 필요한가)
+4. **Phase 3 — 계산기 v2**: 처리량·머신 대수 계산, 대체 레시피 선택, 자원 수지
+5. **Phase 4 — 앱 스택 결정** & MVP: iPad 인터랙션 1차 화면
+6. **Phase 5 — 앱 확장**: 공장 저장, 결과 시각화, iPad 인터랙션 최적화
 
 ---
 

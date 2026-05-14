@@ -7,6 +7,7 @@ import { ItemsIndex } from "./pages/ItemsIndex";
 import { ItemDetail } from "./pages/ItemDetail";
 import { RecipesIndex } from "./pages/RecipesIndex";
 import { RecipeDetail } from "./pages/RecipeDetail";
+import { Calculator } from "./pages/Calculator";
 import { NotFound } from "./pages/NotFound";
 import "./index.css";
 
@@ -20,6 +21,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           <Route path="items/:slug" element={<ItemDetail />} />
           <Route path="recipes" element={<RecipesIndex />} />
           <Route path="recipes/:slug" element={<RecipeDetail />} />
+          <Route path="calc" element={<Calculator />} />
+          <Route path="calc/:slug" element={<Calculator />} />
           <Route path="404" element={<NotFound />} />
           <Route path="*" element={<Navigate to="/404" replace />} />
         </Route>

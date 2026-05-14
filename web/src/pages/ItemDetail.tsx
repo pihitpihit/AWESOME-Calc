@@ -121,8 +121,9 @@ export function ItemDetail() {
         )}
       </Section>
 
-      <p className="text-xs text-zinc-500">
+      <p className="text-xs text-zinc-500 flex gap-4">
         <Link to="/items">← 아이템 전체로</Link>
+        <Link to={`/calc/${item.slug}`}>계산기에서 의존성 다이어그램 보기 →</Link>
       </p>
     </article>
   );

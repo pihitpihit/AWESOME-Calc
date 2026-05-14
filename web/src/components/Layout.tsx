@@ -12,6 +12,7 @@ export function Layout() {
           <nav className="flex gap-4 text-sm">
             <TopLink to="/items">아이템</TopLink>
             <TopLink to="/recipes">레시피</TopLink>
+            <TopLink to="/calc">계산기</TopLink>
           </nav>
         </div>
       </header>
