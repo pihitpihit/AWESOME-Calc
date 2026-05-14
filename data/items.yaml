@@ -7899,7 +7899,7 @@ items:
   slug: desc-wat1-c
   name:
     en: Somersloop
-    ko: 머서 스피어
+    ko: 소머 슬룹
   category: special
   stack_size: 50
   sink_points: null
@@ -7917,7 +7917,7 @@ items:
   slug: desc-wat2-c
   name:
     en: Mercer Sphere
-    ko: 소머슬룹
+    ko: 머서 구체
   category: special
   stack_size: 50
   sink_points: null
