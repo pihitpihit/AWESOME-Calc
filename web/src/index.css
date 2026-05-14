@@ -12,6 +12,17 @@
   }
 }
 
+@layer base {
+  /*
+   * xyflow: edges 레이어를 node 위로 올린다.
+   * 기본은 edges 가 node 아래에 그려져 두꺼운 stroke 의 끝부분이
+   * 노드 외곽에 묻혀 보인다. shadow path 와 함께 가시성 ↑.
+   */
+  .react-flow__edges {
+    z-index: 1001 !important;
+  }
+}
+
 @layer components {
   .panel {
     @apply rounded-md border border-ficsit-border bg-ficsit-panel;

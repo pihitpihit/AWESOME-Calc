@@ -61,6 +61,8 @@ function layout(graph: CalcGraph, onPick: RecipeFlowNodeData["onPick"]) {
     source: e.source,
     target: e.target,
     type: "chevron",
+    // 노드 위에 그려져 노드 외곽에 라인 끝이 묻히지 않게 한다.
+    zIndex: 10,
   }));
 
   return { nodes, edges };

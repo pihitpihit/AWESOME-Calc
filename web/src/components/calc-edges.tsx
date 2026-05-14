@@ -1,17 +1,16 @@
-import { getSmoothStepPath, type EdgeProps } from "@xyflow/react";
+import { getBezierPath, type EdgeProps } from "@xyflow/react";
 
 /**
  * 컨베이어 벨트 느낌의 엣지.
  *
- * 구성:
- *   1. 두꺼운 회색 base path (belt 본체, strokeLinecap/Linejoin=round)
- *   2. 같은 path 위에 오렌지 dash 가 흐르는 애니메이션
- *      (stroke-dasharray + stroke-dashoffset 애니메이션)
+ * 구성 (위에서 아래로 겹쳐 그림):
+ *   1. shadow — 짙은 검정 외곽선, 그림자/글로우 역할
+ *      → 다른 엣지와 겹쳤을 때 시인성 확보
+ *   2. belt 본체 — 밝은 회색 path (round cap/join)
+ *   3. 흐르는 dash — 오렌지, source → target 방향 stroke-dashoffset 애니메이션
  *
- * 이전 구현은 <textPath> 로 chevron(›) 글자를 path 따라 그렸는데,
- * 글자 baseline 과 path 중심선이 어긋나고 코너에서 글자 box 가 회전하면서
- * 외곽으로 새는 SVG 특성상 정렬이 맞지 않았다. dash 방식은 stroke 자체이므로
- * path 중심선과 항상 일치한다.
+ * smoothstep 의 90도 꺾임 대신 bezier 곡선 사용 — 노드 전후 불필요한
+ * 직각 꺾임 제거.
  */
 export function ChevronEdge({
   sourceX,
@@ -21,27 +20,36 @@ export function ChevronEdge({
   sourcePosition,
   targetPosition,
 }: EdgeProps) {
-  const [path] = getSmoothStepPath({
+  const [path] = getBezierPath({
     sourceX,
     sourceY,
     sourcePosition,
     targetX,
     targetY,
     targetPosition,
-    borderRadius: 22,
   });
   return (
     <g pointerEvents="none">
-      {/* belt 본체 */}
+      {/* 그림자 — 다른 엣지·노드 위에서도 라인 윤곽이 보이게 */}
       <path
         d={path}
         fill="none"
-        stroke="#27272a"
-        strokeWidth={12}
+        stroke="#000000"
+        strokeOpacity={0.55}
+        strokeWidth={18}
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      {/* 흐르는 dash — source → target 방향 */}
+      {/* belt 본체 — 밝게 */}
+      <path
+        d={path}
+        fill="none"
+        stroke="#71717a"
+        strokeWidth={11}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      {/* 흐르는 dash */}
       <path
         d={path}
         fill="none"
