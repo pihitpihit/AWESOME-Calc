@@ -2630,7 +2630,7 @@ items:
   slug: desc-crystalshard-c
   name:
     en: Power Shard
-    ko: 동력 파편
+    ko: 파워 파편
   category: special
   stack_size: 100
   sink_points: null
@@ -2663,7 +2663,7 @@ items:
   slug: desc-crystal-c
   name:
     en: Blue Power Slug
-    ko: 청색 동력 슬러그
+    ko: 청색 파워 슬러그
   category: special
   stack_size: 50
   sink_points: null
@@ -2681,7 +2681,7 @@ items:
   slug: desc-crystal-mk2-c
   name:
     en: Yellow Power Slug
-    ko: 황색 동력 슬러그
+    ko: 황색 파워 슬러그
   category: special
   stack_size: 50
   sink_points: null
@@ -2699,7 +2699,7 @@ items:
   slug: desc-crystal-mk3-c
   name:
     en: Purple Power Slug
-    ko: 보라색 동력 슬러그
+    ko: 보라색 파워 슬러그
   category: special
   stack_size: 50
   sink_points: null
