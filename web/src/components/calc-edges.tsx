@@ -3,14 +3,17 @@ import { getSmoothStepPath, type EdgeProps } from "@xyflow/react";
 /**
  * 컨베이어 벨트 느낌의 엣지.
  *
- * - 두꺼운 회색 base path (모서리 round)
- * - 그 위에 textPath 로 진행 방향 chevron(›) 을 path 길이만큼 반복
- *   textPath 는 SVG path 의 tangent 따라 자동 회전되므로 곡선부에서도
- *   chevron 이 흐름 방향을 가리킨다.
- * - 화살표를 path 끝에만 두지 않고 belt 전체에 흐름을 표현 (요구사항).
+ * 구성:
+ *   1. 두꺼운 회색 base path (belt 본체, strokeLinecap/Linejoin=round)
+ *   2. 같은 path 위에 오렌지 dash 가 흐르는 애니메이션
+ *      (stroke-dasharray + stroke-dashoffset 애니메이션)
+ *
+ * 이전 구현은 <textPath> 로 chevron(›) 글자를 path 따라 그렸는데,
+ * 글자 baseline 과 path 중심선이 어긋나고 코너에서 글자 box 가 회전하면서
+ * 외곽으로 새는 SVG 특성상 정렬이 맞지 않았다. dash 방식은 stroke 자체이므로
+ * path 중심선과 항상 일치한다.
  */
 export function ChevronEdge({
-  id,
   sourceX,
   sourceY,
   targetX,
@@ -27,11 +30,10 @@ export function ChevronEdge({
     targetPosition,
     borderRadius: 22,
   });
-  const pathId = `edge-path-${id}`;
   return (
     <g pointerEvents="none">
+      {/* belt 본체 */}
       <path
-        id={pathId}
         d={path}
         fill="none"
         stroke="#27272a"
@@ -39,17 +41,23 @@ export function ChevronEdge({
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <text
-        fill="#fa9549"
-        fontSize={16}
-        fontWeight={900}
-        letterSpacing="4px"
-        dominantBaseline="central"
+      {/* 흐르는 dash — source → target 방향 */}
+      <path
+        d={path}
+        fill="none"
+        stroke="#fa9549"
+        strokeWidth={5}
+        strokeLinecap="butt"
+        strokeDasharray="14 10"
       >
-        <textPath href={`#${pathId}`} startOffset="0" spacing="auto">
-          {"›".repeat(120)}
-        </textPath>
-      </text>
+        <animate
+          attributeName="stroke-dashoffset"
+          from="24"
+          to="0"
+          dur="1.2s"
+          repeatCount="indefinite"
+        />
+      </path>
     </g>
   );
 }
