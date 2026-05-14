@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Background,
@@ -12,12 +12,13 @@ import dagre from "@dagrejs/dagre";
 import "@xyflow/react/dist/style.css";
 
 import { Button } from "@pihitpihit/plastic";
-import { CATEGORY_LABELS, displayName, items, itemBySlug } from "../lib/data";
+import { CATEGORY_LABELS, displayName, itemBySlug } from "../lib/data";
 import { buildProductionGraph, pickDefaultRecipe, type CalcGraph } from "../lib/calc";
 import { nodeTypes, type RecipeFlowNodeData } from "../components/calc-nodes";
 import { edgeTypes } from "../components/calc-edges";
 import { Section } from "../components/Section";
 import { RecipePickerModal } from "../components/RecipePickerModal";
+import { ItemBrowser } from "../components/ItemBrowser";
 
 const ITEM_NODE_W = 140;
 const ITEM_NODE_H = 110;
@@ -30,11 +31,6 @@ function nodeSize(kind: "item" | "recipe") {
     : { width: RECIPE_NODE_W, height: RECIPE_NODE_H };
 }
 
-/**
- * dagre 로 BT(아래→위) 자동 레이아웃.
- * - rank 0 (원자재) 가 아래, 최종 산물이 위.
- * - 노드 핸들도 target=Bottom, source=Top 으로 맞춰져 있어야 함.
- */
 function layout(graph: CalcGraph, onPick: RecipeFlowNodeData["onPick"]) {
   const g = new dagre.graphlib.Graph();
   g.setGraph({ rankdir: "BT", nodesep: 36, ranksep: 90, marginx: 24, marginy: 24 });
@@ -75,17 +71,14 @@ export function Calculator() {
   const navigate = useNavigate();
   const rootItem = slug ? itemBySlug.get(slug) : undefined;
 
-  // 사용자가 명시적으로 고른 레시피들. {itemClass: recipeClass}.
   const [overrides, setOverrides] = useState<Record<string, string>>({});
-  // 어떤 산물 아이템에 대해 picker 를 열어둘지.
   const [pickingForItem, setPickingForItem] = useState<string | null>(null);
+  const [browserOpen, setBrowserOpen] = useState(false);
 
-  // 루트 아이템이 바뀌면 overrides 초기화.
-  const rootClass = rootItem?.class_name;
-  const overridesForRoot = useMemo(() => {
-    void rootClass;
-    return overrides;
-  }, [rootClass, overrides]);
+  // 루트 아이템이 바뀌면 overrides 초기화
+  useEffect(() => {
+    setOverrides({});
+  }, [rootItem?.class_name]);
 
   const onPick = useCallback((outputItemClass: string) => {
     setPickingForItem(outputItemClass);
@@ -93,10 +86,15 @@ export function Calculator() {
 
   const graph = useMemo(() => {
     if (!rootItem) return null;
-    return buildProductionGraph(rootItem.class_name, overridesForRoot);
-  }, [rootItem, overridesForRoot]);
+    return buildProductionGraph(rootItem.class_name, overrides);
+  }, [rootItem, overrides]);
 
   const flow = useMemo(() => (graph ? layout(graph, onPick) : null), [graph, onPick]);
+
+  function pickRoot(s: string) {
+    setBrowserOpen(false);
+    navigate(s ? `/calc/${s}` : "/calc");
+  }
 
   return (
     <div className="space-y-4">
@@ -117,46 +115,46 @@ export function Calculator() {
         </p>
       </header>
 
-      <ItemPicker
-        initialSlug={slug}
-        onPick={(s) => {
-          setOverrides({});
-          navigate(`/calc/${s}`);
-        }}
-      />
+      {/* 루트 미선택: 큰 ItemBrowser 인라인 */}
+      {!rootItem && (
+        <Section title="만들고 싶은 아이템을 골라라" description="검색 또는 카테고리 필터, 격자/목록 보기를 사용한다.">
+          <ItemBrowser
+            onPick={(s) => pickRoot(s)}
+            excludeCategories={["special"]}
+          />
+        </Section>
+      )}
+
+      {/* 루트 선택: 작은 헤더 + '다른 아이템 보기' 버튼 + 모달 */}
+      {rootItem && (
+        <div className="panel p-3 flex flex-wrap items-center gap-3">
+          <div className="flex-1 min-w-[12rem]">
+            <div className="text-xs text-zinc-500">현재 선택</div>
+            <div className="text-sm text-zinc-100">
+              {displayName(rootItem.name)}{" "}
+              <span className="text-zinc-500">{rootItem.name.en}</span>
+            </div>
+          </div>
+          <Button onClick={() => setBrowserOpen(true)}>다른 아이템 고르기</Button>
+          <Button variant="secondary" onClick={() => pickRoot("")}>
+            초기화
+          </Button>
+        </div>
+      )}
 
       {Object.keys(overrides).length > 0 && (
         <div className="text-xs text-zinc-400 flex items-center gap-2">
           <span>적용된 레시피 변경: {Object.keys(overrides).length}개</span>
-          <button onClick={() => setOverrides({})} className="chip hover:border-ficsit-orange hover:text-ficsit-orange">
+          <button
+            onClick={() => setOverrides({})}
+            className="chip hover:border-ficsit-orange hover:text-ficsit-orange"
+          >
             기본값으로 초기화
           </button>
         </div>
       )}
 
-      {!rootItem ? (
-        <Section title="시작" description="위 검색에서 만들고 싶은 아이템을 골라라.">
-          <p className="text-sm text-zinc-400">
-            예시:{" "}
-            {[
-              "desc-modularframe-c",
-              "desc-modularframeheavy-c",
-              "desc-computer-c",
-              "desc-motor-c",
-              "desc-spaceelevatorpart-1-c",
-            ].map((s, i) => {
-              const it = itemBySlug.get(s);
-              if (!it) return null;
-              return (
-                <span key={s}>
-                  {i > 0 && " · "}
-                  <a href={`#/calc/${s}`}>{displayName(it.name)}</a>
-                </span>
-              );
-            })}
-          </p>
-        </Section>
-      ) : !flow || flow.nodes.length <= 1 ? (
+      {!rootItem ? null : !flow || flow.nodes.length <= 1 ? (
         <Section title="해당 아이템은 다이어그램이 없다">
           <p className="text-sm text-zinc-300">
             <span className="chip">{CATEGORY_LABELS[rootItem.category].ko}</span>{" "}
@@ -215,10 +213,24 @@ export function Calculator() {
         </ul>
       </Section>
 
+      {/* 루트 선택 후, 다른 아이템 고르기 모달 */}
+      {browserOpen && (
+        <BrowserModal onClose={() => setBrowserOpen(false)}>
+          <ItemBrowser
+            onPick={(s) => pickRoot(s)}
+            excludeCategories={["special"]}
+            initialView="grid"
+            compact
+          />
+        </BrowserModal>
+      )}
+
       {pickingForItem && (
         <RecipePickerModal
           itemClass={pickingForItem}
-          currentRecipeClass={overrides[pickingForItem] ?? pickDefaultRecipe(pickingForItem)?.class_name ?? null}
+          currentRecipeClass={
+            overrides[pickingForItem] ?? pickDefaultRecipe(pickingForItem)?.class_name ?? null
+          }
           onSelect={(recipeClass) => {
             const def = pickDefaultRecipe(pickingForItem);
             setOverrides((prev) => {
@@ -239,62 +251,36 @@ export function Calculator() {
   );
 }
 
-function ItemPicker({
-  initialSlug,
-  onPick,
-}: {
-  initialSlug?: string;
-  onPick: (slug: string) => void;
-}) {
-  const [q, setQ] = useState("");
-  const matches = useMemo(() => {
-    const norm = q.trim().toLowerCase();
-    if (!norm) return [] as typeof items;
-    return items
-      .filter(
-        (it) =>
-          it.category !== "special" &&
-          (it.name.en.toLowerCase().includes(norm) ||
-            (it.name.ko ?? "").toLowerCase().includes(norm)),
-      )
-      .slice(0, 12);
-  }, [q]);
-
+function BrowserModal({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
   return (
-    <div className="panel p-3 space-y-2">
-      <label className="block text-xs text-zinc-500 mb-1">만들고 싶은 아이템</label>
-      <div className="flex gap-2">
-        <input
-          type="search"
-          placeholder="이름 검색 (예: 모듈식 골격, motor)"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          className="flex-1 panel px-3 py-1.5 text-sm focus:outline-none focus:border-ficsit-orange"
-        />
-        {initialSlug && (
-          <Button onClick={() => onPick("")} variant="secondary">
-            초기화
-          </Button>
-        )}
+    <div
+      className="fixed inset-0 z-50 bg-black/60 flex items-start justify-center p-4 overflow-y-auto"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        className="panel max-w-4xl w-full my-8"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <header className="p-3 border-b border-ficsit-border flex items-center justify-between">
+          <h3 className="text-base font-semibold">아이템 고르기</h3>
+          <button
+            onClick={onClose}
+            className="text-xs text-zinc-400 hover:text-ficsit-orange"
+          >
+            닫기 (Esc)
+          </button>
+        </header>
+        <div className="p-3">{children}</div>
       </div>
-      {matches.length > 0 && (
-        <ul className="flex flex-wrap gap-1.5 pt-1">
-          {matches.map((it) => (
-            <li key={it.slug}>
-              <button
-                onClick={() => {
-                  setQ("");
-                  onPick(it.slug);
-                }}
-                className="chip hover:border-ficsit-orange hover:text-ficsit-orange"
-              >
-                {displayName(it.name)}
-                <span className="text-zinc-500 ml-1.5">{it.name.en}</span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
     </div>
   );
 }
