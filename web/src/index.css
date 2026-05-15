@@ -32,6 +32,17 @@
   .react-flow__edges {
     z-index: 1001 !important;
   }
+
+  /*
+   * xyflow 노드 선택 상태의 기본 시각 효과 (box-shadow, outline) 무력화.
+   * 우리 디자인은 노드 내부 border/ring 만 사용한다.
+   */
+  .react-flow__node.selected,
+  .react-flow__node:focus,
+  .react-flow__node:focus-visible {
+    box-shadow: none !important;
+    outline: none !important;
+  }
 }
 
 @layer components {

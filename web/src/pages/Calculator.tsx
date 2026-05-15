@@ -35,7 +35,13 @@ function nodeSize(kind: "item" | "recipe") {
     : { width: RECIPE_NODE_W, height: RECIPE_NODE_H };
 }
 
-function layout(graph: CalcGraph) {
+interface NodeClickHandlers {
+  onPickRoot: () => void;
+  onPickItem: (slug: string) => void;
+  onPickRecipe: (outputItemClass: string) => void;
+}
+
+function layout(graph: CalcGraph, handlers: NodeClickHandlers) {
   const g = new dagre.graphlib.Graph();
   g.setGraph({
     rankdir: "BT",
@@ -56,19 +62,33 @@ function layout(graph: CalcGraph) {
     const pos = g.node(n.id);
     const size = nodeSize(n.kind);
     const isRoot = n.id === graph.rootId;
+    if (n.kind === "item") {
+      return {
+        id: n.id,
+        type: "itemFlow",
+        position: { x: pos.x - size.width / 2, y: pos.y - size.height / 2 },
+        data: {
+          item: n.item,
+          isRoot,
+          onClick: isRoot
+            ? () => handlers.onPickRoot()
+            : () => handlers.onPickItem(n.item.slug),
+        } satisfies ItemFlowNodeData,
+        draggable: false,
+        selectable: true,
+      };
+    }
     return {
       id: n.id,
-      type: n.kind === "item" ? "itemFlow" : "recipeFlow",
+      type: "recipeFlow",
       position: { x: pos.x - size.width / 2, y: pos.y - size.height / 2 },
-      data:
-        n.kind === "item"
-          ? ({ item: n.item, isRoot } satisfies ItemFlowNodeData)
-          : ({
-              recipe: n.recipe,
-              outputItemClass: n.outputItemClass,
-            } satisfies RecipeFlowNodeData),
+      data: {
+        recipe: n.recipe,
+        outputItemClass: n.outputItemClass,
+        onClick: () => handlers.onPickRecipe(n.outputItemClass),
+      } satisfies RecipeFlowNodeData,
       draggable: false,
-      selectable: false,
+      selectable: true,
     };
   });
 
@@ -88,16 +108,16 @@ function layout(graph: CalcGraph) {
   return { nodes, edges };
 }
 
-function placeholderFlow() {
+function placeholderFlow(onPickRoot: () => void) {
   return {
     nodes: [
       {
         id: "root-placeholder",
         type: "placeholderFlow",
         position: { x: 0, y: 0 },
-        data: {},
+        data: { onClick: () => onPickRoot() },
         draggable: false,
-        selectable: false,
+        selectable: true,
       } as Node,
     ],
     edges: [] as Edge[],
@@ -122,10 +142,19 @@ export function Calculator() {
     return buildProductionGraph(rootItem.class_name, overrides);
   }, [rootItem, overrides]);
 
+  const handlers = useMemo<NodeClickHandlers>(
+    () => ({
+      onPickRoot: () => setRootPickerOpen(true),
+      onPickItem: (slug: string) => navigate(`/items/${slug}`),
+      onPickRecipe: (outputItemClass: string) => setPickingForItem(outputItemClass),
+    }),
+    [navigate],
+  );
+
   const flow = useMemo(() => {
-    if (!graph) return placeholderFlow();
-    return layout(graph);
-  }, [graph]);
+    if (!graph) return placeholderFlow(handlers.onPickRoot);
+    return layout(graph, handlers);
+  }, [graph, handlers]);
 
   /**
    * 노드 클릭 처리 — xyflow 가 마우스/터치 둘 다 onNodeClick 으로 묶어준다.
@@ -206,7 +235,8 @@ export function Calculator() {
             proOptions={{ hideAttribution: true }}
             nodesDraggable={false}
             nodesConnectable={false}
-            elementsSelectable={false}
+            elementsSelectable
+            nodesFocusable={false}
             panOnDrag
             panOnScroll
             zoomOnScroll
