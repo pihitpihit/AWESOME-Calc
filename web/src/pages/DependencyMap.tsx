@@ -1,9 +1,10 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Background,
   Controls,
   Handle,
+  Panel,
   Position,
   ReactFlow,
   ReactFlowProvider,
@@ -49,39 +50,64 @@ function buildingShort(cn?: string): string {
 
 export function DependencyMap() {
   const flow = useMemo(() => buildAndLayout(), []);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  /**
+   * 전체화면 모드 부수효과:
+   *   - body 의 스크롤 잠금 (배경 페이지가 우연히 스크롤되는 것 방지)
+   *   - Esc 키로 해제
+   */
+  useEffect(() => {
+    if (!isFullscreen) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsFullscreen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [isFullscreen]);
 
   return (
-    <div className="min-w-0">
-      {/* Sticky header */}
-      <div className="sticky top-12 z-20 bg-ficsit-dark py-3 space-y-2 border-b border-ficsit-border">
-        <header>
-          <h1 className="text-2xl font-bold">전체 의존성 지도</h1>
-          <p className="text-sm text-zinc-400">
-            모든 레시피의 입력 → 출력 관계를 한 캔버스에서. 드래그로 이동, 휠로 확대/축소.
-            <span className="text-zinc-600 ml-2">
-              · 빌딩 건축 / Reanimated SAM 합성 제외 · {flow.recipeCount}개 레시피 / {flow.sourceCount}개 원천
+    <div className={isFullscreen ? "fixed inset-0 z-50 bg-ficsit-dark flex flex-col" : "min-w-0"}>
+      {!isFullscreen && (
+        <div className="sticky top-12 z-20 bg-ficsit-dark py-3 space-y-2 border-b border-ficsit-border">
+          <header>
+            <h1 className="text-2xl font-bold">전체 의존성 지도</h1>
+            <p className="text-sm text-zinc-400">
+              모든 레시피의 입력 → 출력 관계를 한 캔버스에서. 드래그로 이동, 휠로 확대/축소.
+              <span className="text-zinc-600 ml-2">
+                · 빌딩 건축 / Reanimated SAM 합성 제외 · {flow.recipeCount}개 레시피 / {flow.sourceCount}개 원천
+              </span>
+            </p>
+          </header>
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-500">
+            <span className="inline-flex items-center gap-1.5">
+              <span className="inline-block w-3 h-3 rounded-sm border-2 border-zinc-500 bg-ficsit-panel" />
+              기본 레시피
             </span>
-          </p>
-        </header>
-        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-500">
-          <span className="inline-flex items-center gap-1.5">
-            <span className="inline-block w-3 h-3 rounded-sm border-2 border-zinc-500 bg-ficsit-panel" />
-            기본 레시피
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <span className="inline-block w-3 h-3 rounded-sm border-2 border-cyan-400/70 bg-ficsit-panel" />
-            대체 레시피
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <span className="inline-block w-3 h-3 rounded-full border-2 border-ficsit-orange bg-ficsit-dark" />
-            원천 (채굴 · 채집)
-          </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="inline-block w-3 h-3 rounded-sm border-2 border-cyan-400/70 bg-ficsit-panel" />
+              대체 레시피
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="inline-block w-3 h-3 rounded-full border-2 border-ficsit-orange bg-ficsit-dark" />
+              원천 (채굴 · 채집)
+            </span>
+          </div>
         </div>
-      </div>
+      )}
 
       <div
-        className="panel w-full min-w-0 overflow-hidden mt-3"
-        style={{ height: "calc(100vh - 220px)", minHeight: 500 }}
+        className={
+          isFullscreen
+            ? "flex-1 min-h-0 w-full bg-ficsit-panel"
+            : "panel w-full min-w-0 overflow-hidden mt-3"
+        }
+        style={isFullscreen ? undefined : { height: "calc(100vh - 220px)", minHeight: 500 }}
       >
         <ReactFlowProvider>
           <ReactFlow
@@ -102,6 +128,15 @@ export function DependencyMap() {
           >
             <Background gap={32} size={1} color="#27272a" />
             <Controls showInteractive={false} />
+            <Panel position="top-right">
+              <button
+                onClick={() => setIsFullscreen(!isFullscreen)}
+                title={isFullscreen ? "일반 모드로 (Esc)" : "전체화면 모드"}
+                className="chip hover:border-ficsit-orange hover:text-ficsit-orange bg-ficsit-panel/90 backdrop-blur"
+              >
+                {isFullscreen ? "↙ 일반 모드 (Esc)" : "⤢ 전체화면"}
+              </button>
+            </Panel>
           </ReactFlow>
         </ReactFlowProvider>
       </div>
