@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Background,
   Controls,
@@ -10,6 +9,7 @@ import {
   ReactFlowProvider,
   type Edge,
   type Node,
+  type NodeMouseHandler,
 } from "@xyflow/react";
 import dagre from "@dagrejs/dagre";
 import "@xyflow/react/dist/style.css";
@@ -48,9 +48,15 @@ function buildingShort(cn?: string): string {
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 
+/** 활성 노드의 outgoing 엣지 (active → other) 색상. 오렌지. */
+const OUTGOING_COLOR = "#fa9549";
+/** 활성 노드의 incoming 엣지 (other → active) 색상. 시안. */
+const INCOMING_COLOR = "#22d3ee";
+
 export function DependencyMap() {
   const flow = useMemo(() => buildAndLayout(), []);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [activeIds, setActiveIds] = useState<Set<string>>(new Set());
 
   /**
    * 전체화면 모드 부수효과:
@@ -71,6 +77,70 @@ export function DependencyMap() {
     };
   }, [isFullscreen]);
 
+  /** 노드 클릭 = 활성/비활성 토글. */
+  const onNodeClick: NodeMouseHandler = useCallback((_e, node) => {
+    setActiveIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(node.id)) next.delete(node.id);
+      else next.add(node.id);
+      return next;
+    });
+  }, []);
+
+  /** 빈 캔버스 클릭 = 모두 해제. */
+  const onPaneClick = useCallback(() => setActiveIds(new Set()), []);
+
+  /**
+   * 활성 노드와 그 인접 엣지의 시각 강조 적용.
+   *   - 활성 노드: 노드 컴포넌트에 isActive=true 전달, z-index 상승
+   *   - outgoing(active→타) 엣지: 오렌지, 굵게, animated, z-index 상승
+   *   - incoming(타→active) 엣지: 시안, 굵게, z-index 상승
+   *   - 양쪽 다 활성: 오렌지+굵게+animated (outgoing 스타일 우선)
+   */
+  const styledNodes = useMemo(
+    () =>
+      flow.nodes.map((n) => ({
+        ...n,
+        zIndex: activeIds.has(n.id) ? 100 : 0,
+        data: { ...n.data, isActive: activeIds.has(n.id) },
+      })),
+    [flow.nodes, activeIds],
+  );
+
+  const styledEdges = useMemo(
+    () =>
+      flow.edges.map((e) => {
+        const sourceActive = activeIds.has(e.source);
+        const targetActive = activeIds.has(e.target);
+        if (sourceActive && targetActive) {
+          return {
+            ...e,
+            style: { stroke: OUTGOING_COLOR, strokeWidth: 3 },
+            animated: true,
+            zIndex: 50,
+          };
+        }
+        if (sourceActive) {
+          return {
+            ...e,
+            style: { stroke: OUTGOING_COLOR, strokeWidth: 2.5 },
+            animated: true,
+            zIndex: 20,
+          };
+        }
+        if (targetActive) {
+          return {
+            ...e,
+            style: { stroke: INCOMING_COLOR, strokeWidth: 2.5, strokeDasharray: "6 4" },
+            animated: false,
+            zIndex: 20,
+          };
+        }
+        return e;
+      }),
+    [flow.edges, activeIds],
+  );
+
   return (
     <div className={isFullscreen ? "fixed inset-0 z-50 bg-ficsit-dark flex flex-col" : "min-w-0"}>
       {!isFullscreen && (
@@ -80,7 +150,8 @@ export function DependencyMap() {
             <p className="text-sm text-zinc-400">
               모든 레시피의 입력 → 출력 관계를 한 캔버스에서. 드래그로 이동, 휠로 확대/축소.
               <span className="text-zinc-600 ml-2">
-                · 빌딩 건축 / Reanimated SAM 합성 제외 · {flow.recipeCount}개 레시피 / {flow.sourceCount}개 원천
+                · 노드 클릭으로 강조/해제, 빈 캔버스 클릭으로 모두 해제
+                · {flow.recipeCount}개 레시피 / {flow.sourceCount}개 원천
               </span>
             </p>
           </header>
@@ -97,6 +168,27 @@ export function DependencyMap() {
               <span className="inline-block w-3 h-3 rounded-full border-2 border-ficsit-orange bg-ficsit-dark" />
               원천 (채굴 · 채집)
             </span>
+            <span className="text-zinc-700">|</span>
+            <span className="inline-flex items-center gap-1.5">
+              <svg width="22" height="6" aria-hidden>
+                <line x1="0" y1="3" x2="22" y2="3" stroke={OUTGOING_COLOR} strokeWidth="2.5" />
+              </svg>
+              나가는 (활성 → 다른 노드)
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <svg width="22" height="6" aria-hidden>
+                <line x1="0" y1="3" x2="22" y2="3" stroke={INCOMING_COLOR} strokeWidth="2.5" strokeDasharray="6 4" />
+              </svg>
+              들어오는 (다른 노드 → 활성)
+            </span>
+            {activeIds.size > 0 && (
+              <button
+                onClick={() => setActiveIds(new Set())}
+                className="text-zinc-500 hover:text-ficsit-orange underline ml-auto"
+              >
+                {activeIds.size}개 활성 · 모두 해제
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -111,8 +203,8 @@ export function DependencyMap() {
       >
         <ReactFlowProvider>
           <ReactFlow
-            nodes={flow.nodes}
-            edges={flow.edges}
+            nodes={styledNodes}
+            edges={styledEdges}
             nodeTypes={NODE_TYPES}
             defaultViewport={{ x: 40, y: 40, zoom: 0.6 }}
             minZoom={0.1}
@@ -122,6 +214,8 @@ export function DependencyMap() {
             nodesConnectable={false}
             nodesFocusable={false}
             elementsSelectable={false}
+            onNodeClick={onNodeClick}
+            onPaneClick={onPaneClick}
             panOnDrag
             panOnScroll
             zoomOnScroll
@@ -146,13 +240,18 @@ export function DependencyMap() {
 
 // ── Custom Nodes ─────────────────────────────────────────────────────────────
 
-function SourceNode({ data }: { data: { item: Item } }) {
-  const { item } = data;
+function SourceNode({ data }: { data: { item: Item; isActive?: boolean } }) {
+  const { item, isActive } = data;
   return (
-    <Link
-      to={`/items/${item.slug}`}
-      className="flex items-center gap-2 rounded-full bg-ficsit-dark border-2 border-ficsit-orange px-2 py-1 no-underline"
+    <div
+      className={[
+        "flex items-center gap-2 rounded-full bg-ficsit-dark border-2 px-2 py-1 cursor-pointer transition-shadow",
+        isActive
+          ? "border-ficsit-orange ring-2 ring-ficsit-orange shadow-lg shadow-ficsit-orange/40"
+          : "border-ficsit-orange",
+      ].join(" ")}
       style={{ width: SOURCE_W, height: SOURCE_H }}
+      title={item.name.en}
     >
       <img
         src={iconUrl(item.slug)}
@@ -167,23 +266,24 @@ function SourceNode({ data }: { data: { item: Item } }) {
         position={Position.Right}
         className="!w-2 !h-2 !bg-zinc-600 !border-0"
       />
-    </Link>
+    </div>
   );
 }
 
-function RecipeNode({ data }: { data: { recipe: Recipe } }) {
-  const { recipe: r } = data;
+function RecipeNode({ data }: { data: { recipe: Recipe; isActive?: boolean } }) {
+  const { recipe: r, isActive } = data;
   const product = r.products[0] ? itemByClass.get(r.products[0].item) : undefined;
   const label = buildingShort(r.produced_in[0]);
 
   return (
-    <Link
-      to={`/recipes/${r.slug}`}
+    <div
       className={[
-        "flex gap-2 rounded-lg p-2 bg-ficsit-panel border-2 shadow-md no-underline",
+        "flex gap-2 rounded-lg p-2 bg-ficsit-panel border-2 shadow-md cursor-pointer transition-shadow",
         r.alternate ? "border-cyan-400/70" : "border-zinc-500",
+        isActive ? "ring-2 ring-ficsit-orange shadow-lg shadow-ficsit-orange/40" : "",
       ].join(" ")}
       style={{ width: RECIPE_W, height: RECIPE_H }}
+      title={displayName(r.name)}
     >
       {product && (
         <img
@@ -238,7 +338,7 @@ function RecipeNode({ data }: { data: { recipe: Recipe } }) {
         position={Position.Right}
         className="!w-2 !h-2 !bg-zinc-600 !border-0"
       />
-    </Link>
+    </div>
   );
 }
 
