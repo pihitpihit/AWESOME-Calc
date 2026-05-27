@@ -6,20 +6,19 @@
   /*
    * 모바일 가로 스크롤 차단.
    *
-   * - `clip` 은 iOS Safari 14 이하에서 미지원이라 `hidden` 으로 fallback.
-   *   sticky 가 깨질 가능성이 있어 함께 `position: relative` 명시.
-   * - 자식 어디선가 너비를 초과하더라도 페이지 자체는 흔들리지 않게.
+   * - `clip` 사용 — `hidden` 과 달리 스크롤 컨테이너를 만들지 않아서
+   *   하위 sticky 요소가 정상 작동한다. iOS Safari 16+ 지원.
+   * - 폴백으로 `max-width: 100vw` 유지 — 구형 브라우저에서도 viewport 너비로 제한.
    * - `overscroll-behavior-x: none` 으로 좌우 끌어당김 차단.
    */
   html {
-    overflow-x: hidden;
+    overflow-x: clip;
     max-width: 100vw;
     overscroll-behavior-x: none;
   }
   body {
-    overflow-x: hidden;
+    overflow-x: clip;
     max-width: 100vw;
-    position: relative;
     overscroll-behavior-x: none;
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI",
       "Pretendard", "Noto Sans KR", system-ui, sans-serif;
