@@ -165,6 +165,10 @@ export function DependencyMap() {
               대체 레시피
             </span>
             <span className="inline-flex items-center gap-1.5">
+              <span className="inline-block w-3 h-3 rounded-sm border-l-[3px] border-amber-500/70 bg-gradient-to-br from-amber-950/60 to-ficsit-panel" />
+              최종 산물 (재료로 안 쓰임)
+            </span>
+            <span className="inline-flex items-center gap-1.5">
               <span className="inline-block w-3 h-3 rounded-full border-2 border-ficsit-orange bg-ficsit-dark" />
               원천 (채굴 · 채집)
             </span>
@@ -270,20 +274,32 @@ function SourceNode({ data }: { data: { item: Item; isActive?: boolean } }) {
   );
 }
 
-function RecipeNode({ data }: { data: { recipe: Recipe; isActive?: boolean } }) {
-  const { recipe: r, isActive } = data;
+function RecipeNode({
+  data,
+}: {
+  data: { recipe: Recipe; isActive?: boolean; isTerminal?: boolean };
+}) {
+  const { recipe: r, isActive, isTerminal } = data;
   const product = r.products[0] ? itemByClass.get(r.products[0].item) : undefined;
   const label = buildingShort(r.produced_in[0]);
 
   return (
     <div
       className={[
-        "flex gap-2 rounded-lg p-2 bg-ficsit-panel border-2 shadow-md cursor-pointer transition-shadow",
+        "flex gap-2 rounded-lg p-2 border-2 shadow-md cursor-pointer transition-shadow",
+        // 최종 산물 레시피는 따뜻한 amber 톤 배경 + 좌측 강조 stripe.
+        isTerminal
+          ? "bg-gradient-to-br from-amber-950/60 to-ficsit-panel border-l-[6px] !border-l-amber-500/70"
+          : "bg-ficsit-panel",
         r.alternate ? "border-cyan-400/70" : "border-zinc-500",
         isActive ? "ring-2 ring-ficsit-orange shadow-lg shadow-ficsit-orange/40" : "",
       ].join(" ")}
       style={{ width: RECIPE_W, height: RECIPE_H }}
-      title={displayName(r.name)}
+      title={
+        isTerminal
+          ? `${displayName(r.name)} (최종 산물 — 다른 레시피의 재료로 안 쓰임)`
+          : displayName(r.name)
+      }
     >
       {product && (
         <img
@@ -354,6 +370,8 @@ interface DepNode {
   kind: "source" | "recipe";
   item?: Item;
   recipe?: Recipe;
+  /** recipe 노드 한정: 모든 산물이 어떤 레시피의 ingredient 로도 안 쓰이면 true (최종 산물). */
+  terminal?: boolean;
 }
 
 interface DepEdge {
@@ -393,12 +411,16 @@ function buildAndLayout() {
     for (const p of r.products) producedClasses.add(p.item);
   }
 
+  // 어떤 레시피의 ingredient 로 등장하는 item class 집합
+  const usedAsIngredient = new Set<string>();
+  for (const r of filtered) {
+    for (const ing of r.ingredients) usedAsIngredient.add(ing.item);
+  }
+
   // 원천: ingredient 로 등장하지만 어떤 필터링 레시피도 생산하지 않음
   const sourceClasses = new Set<string>();
-  for (const r of filtered) {
-    for (const ing of r.ingredients) {
-      if (!producedClasses.has(ing.item)) sourceClasses.add(ing.item);
-    }
+  for (const cn of usedAsIngredient) {
+    if (!producedClasses.has(cn)) sourceClasses.add(cn);
   }
 
   // item class → 이 item 을 생산하는 대표 recipe 노드 ID (기본 우선, 없으면 첫 대체)
@@ -428,7 +450,9 @@ function buildAndLayout() {
     if (it) nodes.push({ id: `src:${cn}`, kind: "source", item: it });
   }
   for (const r of filtered) {
-    nodes.push({ id: `rec:${r.class_name}`, kind: "recipe", recipe: r });
+    // 모든 산물이 어디에도 ingredient 로 안 쓰이면 terminal (최종 산물 레시피)
+    const terminal = r.products.length > 0 && r.products.every((p) => !usedAsIngredient.has(p.item));
+    nodes.push({ id: `rec:${r.class_name}`, kind: "recipe", recipe: r, terminal });
   }
 
   const edges: DepEdge[] = [];
@@ -489,7 +513,10 @@ function layout(graph: { nodes: DepNode[]; edges: DepEdge[] }) {
       id: n.id,
       type: n.kind === "source" ? "depSource" : "depRecipe",
       position: { x: pos.x - size.width / 2, y: pos.y - size.height / 2 },
-      data: n.kind === "source" ? { item: n.item } : { recipe: n.recipe },
+      data:
+        n.kind === "source"
+          ? { item: n.item }
+          : { recipe: n.recipe, isTerminal: n.terminal },
       draggable: false,
       selectable: false,
     };
