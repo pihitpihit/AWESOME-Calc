@@ -12,7 +12,7 @@ export function Sidebar() {
           <SideLink to="/recipes">레시피 전체 ({recipes.length})</SideLink>
           <SideLink to="/explorer">레시피 탐색기</SideLink>
           <SideLink to="/depmap">전체 의존성 지도</SideLink>
-          <SideLink to="/calc">계산기 — 의존성</SideLink>
+          <SideLink to="/calc">계산기 — 생산 BOM</SideLink>
         </Section>
 
         <Section title="카테고리">

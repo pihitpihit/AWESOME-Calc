@@ -65,6 +65,122 @@ function pickRecipeWithOverride(itemClass: string, overrides: Record<string, str
   return pickDefaultRecipe(itemClass);
 }
 
+/**
+ * 트리 노드 — 들여쓰기 트리 / BOM 표용.
+ *
+ *   id          : 트리 안에서 유일 (같은 item 이 여러 경로에 나와도 다른 id)
+ *   itemClass   : 아이템 class_name
+ *   demand      : 루트 1 개 만들기 위한 이 아이템의 누적 필요 수량
+ *   recipe      : 사용 레시피. raw / produced_by 비어있으면 null
+ *   cycles      : 그 레시피를 몇 사이클 돌려야 하는지 (= demand / 사이클당 산출)
+ *   children    : 재료 트리 (재귀)
+ *   isRaw       : 더 이상 내려갈 곳 없는 원료
+ *   cycleStop   : 사이클 방지로 멈춘 노드 (children 비어있어도 ingredient 있음)
+ */
+export interface TreeNode {
+  id: string;
+  itemClass: string;
+  item: Item;
+  demand: number;
+  recipe: Recipe | null;
+  cycles: number;
+  children: TreeNode[];
+  isRaw: boolean;
+  cycleStop?: boolean;
+}
+
+export function buildProductionTree(
+  rootItemClass: string,
+  overrides: Record<string, string> = {},
+  rootQty = 1,
+  maxDepth = 16,
+): TreeNode | null {
+  const rootItem = itemByClass.get(rootItemClass);
+  if (!rootItem) return null;
+  let counter = 0;
+
+  function walk(
+    itemClass: string,
+    demand: number,
+    depth: number,
+    visited: Set<string>,
+  ): TreeNode | null {
+    if (depth > maxDepth) return null;
+    const item = itemByClass.get(itemClass);
+    if (!item) return null;
+
+    const id = `n${counter++}`;
+    const isRaw = item.category === "raw" || item.produced_by.length === 0;
+    const recipe = isRaw ? null : pickRecipeWithOverride(itemClass, overrides);
+    let cycles = 0;
+    const children: TreeNode[] = [];
+    let cycleStop = false;
+
+    if (recipe) {
+      const productAmount = recipe.products.find((p) => p.item === itemClass)?.amount ?? 1;
+      cycles = demand / productAmount;
+
+      if (visited.has(recipe.class_name)) {
+        cycleStop = true;
+      } else {
+        const newVisited = new Set(visited);
+        newVisited.add(recipe.class_name);
+        for (const ing of recipe.ingredients) {
+          const child = walk(ing.item, cycles * ing.amount, depth + 1, newVisited);
+          if (child) children.push(child);
+        }
+      }
+    }
+
+    return { id, itemClass, item, demand, recipe, cycles, children, isRaw, cycleStop };
+  }
+
+  return walk(rootItemClass, rootQty, 0, new Set());
+}
+
+/**
+ * BOM 행 — 트리를 itemClass 기준으로 평탄화 + dedup.
+ * 같은 item 이 여러 경로에 등장하면 demand 와 cycles 합산, depth 는 최소값.
+ */
+export interface BomRow {
+  depth: number;
+  itemClass: string;
+  item: Item;
+  demand: number;
+  recipe: Recipe | null;
+  cycles: number;
+  building: string | null;
+  isRaw: boolean;
+}
+
+export function flattenToBom(tree: TreeNode): BomRow[] {
+  const rows = new Map<string, BomRow>();
+  function visit(node: TreeNode, depth: number) {
+    const existing = rows.get(node.itemClass);
+    if (existing) {
+      existing.depth = Math.min(existing.depth, depth);
+      existing.demand += node.demand;
+      existing.cycles += node.cycles;
+    } else {
+      rows.set(node.itemClass, {
+        depth,
+        itemClass: node.itemClass,
+        item: node.item,
+        demand: node.demand,
+        recipe: node.recipe,
+        cycles: node.cycles,
+        building: node.recipe?.produced_in[0] ?? null,
+        isRaw: node.isRaw,
+      });
+    }
+    for (const c of node.children) visit(c, depth + 1);
+  }
+  visit(tree, 0);
+  return Array.from(rows.values()).sort(
+    (a, b) => a.depth - b.depth || a.item.name.en.localeCompare(b.item.name.en),
+  );
+}
+
 export function buildProductionGraph(
   rootItemClass: string,
   overrides: Record<string, string> = {},
