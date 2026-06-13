@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { UNLOCK_LABELS, displayName, recipes } from "../lib/data";
+import { UNLOCK_LABELS, displayName, itemByClass, perMin, rateLabel, recipes } from "../lib/data";
 
 const SOURCE_OPTIONS = ["default", "tutorial", "milestone", "mam", "alternate", "other"] as const;
 
@@ -88,24 +88,40 @@ export function RecipesIndex() {
               <th className="px-3 py-2">획득</th>
               <th className="px-3 py-2">생산 빌딩</th>
               <th className="px-3 py-2 text-right">시간(s)</th>
+              <th className="px-3 py-2 text-right">분당 산물</th>
             </tr>
           </thead>
           <tbody>
-            {filtered.map((r) => (
-              <tr key={r.class_name} className="border-b border-ficsit-border/40 hover:bg-ficsit-panel/50">
-                <td className="px-3 py-1.5">
-                  <Link to={`/recipes/${r.slug}`} className="no-underline text-zinc-100 hover:text-ficsit-orange">
-                    {displayName(r.name)}
-                  </Link>
-                  {r.alternate && <span className="chip-alt ml-2">대체</span>}
-                </td>
-                <td className="px-3 py-1.5 text-zinc-400">{r.unlock.ko}</td>
-                <td className="px-3 py-1.5 text-zinc-400 font-mono text-xs">
-                  {r.produced_in.length === 0 ? "—" : r.produced_in.map(stripDesc).join(", ")}
-                </td>
-                <td className="px-3 py-1.5 text-right font-mono text-zinc-400">{r.time_seconds}</td>
-              </tr>
-            ))}
+            {filtered.map((r) => {
+              const main = r.products[0];
+              const mainItem = main ? itemByClass.get(main.item) : undefined;
+              const rate = main ? perMin(main.amount, r.time_seconds) : null;
+              return (
+                <tr key={r.class_name} className="border-b border-ficsit-border/40 hover:bg-ficsit-panel/50">
+                  <td className="px-3 py-1.5">
+                    <Link to={`/recipes/${r.slug}`} className="no-underline text-zinc-100 hover:text-ficsit-orange">
+                      {displayName(r.name)}
+                    </Link>
+                    {r.alternate && <span className="chip-alt ml-2">대체</span>}
+                  </td>
+                  <td className="px-3 py-1.5 text-zinc-400">{r.unlock.ko}</td>
+                  <td className="px-3 py-1.5 text-zinc-400 font-mono text-xs">
+                    {r.produced_in.length === 0 ? "—" : r.produced_in.map(stripDesc).join(", ")}
+                  </td>
+                  <td className="px-3 py-1.5 text-right font-mono text-zinc-400">{r.time_seconds}</td>
+                  <td className="px-3 py-1.5 text-right font-mono text-zinc-300 whitespace-nowrap">
+                    {rate !== null && mainItem ? (
+                      <>
+                        {rate}
+                        <span className="text-zinc-500">{rateLabel(mainItem)}</span>
+                      </>
+                    ) : (
+                      "—"
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
