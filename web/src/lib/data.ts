@@ -37,9 +37,9 @@ export function perMin(amount: number, timeSeconds: number): number {
   return Math.round((amount * 60 / timeSeconds) * 100) / 100;
 }
 
-/** 아이템이 유체이면 "m³/분", 아니면 "/분" 라벨. */
+/** 아이템이 유체이면 "m³/min", 아니면 "/min" 라벨. */
 export function rateLabel(item: Item | undefined): string {
-  return item?.is_fluid ? "m³/분" : "/분";
+  return item?.is_fluid ? "m³/min" : "/min";
 }
 
 export const ITEM_CATEGORIES = [

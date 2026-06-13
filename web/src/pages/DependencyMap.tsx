@@ -15,7 +15,7 @@ import {
 import dagre from "@dagrejs/dagre";
 import "@xyflow/react/dist/style.css";
 
-import { displayName, iconUrl, itemByClass, items, recipes } from "../lib/data";
+import { displayName, iconUrl, itemByClass, items, perMin, rateLabel, recipes } from "../lib/data";
 import type { Item, Recipe } from "../types/data";
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -486,9 +486,16 @@ function RecipeNode({
       ? "bg-gradient-to-br from-amber-950/60 to-ficsit-panel border-l-[6px] !border-l-amber-500/70"
       : "bg-ficsit-panel";
 
+  // 분당 산물 — 메인 product 기준
+  const mainProduct = r.products[0];
+  const mainItem = mainProduct ? itemByClass.get(mainProduct.item) : undefined;
+  const mainRate = mainProduct ? perMin(mainProduct.amount, r.time_seconds) : null;
   let tooltip = displayName(r.name);
-  if (isNonAutomatable) tooltip += " (자동화 불가)";
-  else if (isTerminal) tooltip += " (최종 산물 — 다른 레시피의 재료로 안 쓰임)";
+  if (mainRate !== null && mainItem) {
+    tooltip += ` — ${mainRate}${rateLabel(mainItem)}`;
+  }
+  if (isNonAutomatable) tooltip += " · 자동화 불가";
+  else if (isTerminal) tooltip += " · 최종 산물 (다른 레시피의 재료로 안 쓰임)";
 
   return (
     <div
@@ -527,6 +534,7 @@ function RecipeNode({
           {r.ingredients.slice(0, 6).map((ing, i) => {
             const item = itemByClass.get(ing.item);
             if (!item) return null;
+            const rate = perMin(ing.amount, r.time_seconds);
             return (
               <img
                 key={i}
@@ -535,7 +543,7 @@ function RecipeNode({
                 height={16}
                 className="rounded-sm bg-ficsit-dark shrink-0"
                 alt=""
-                title={`×${ing.amount} ${displayName(item.name)}`}
+                title={`×${ing.amount} ${displayName(item.name)} (${rate}${rateLabel(item)})`}
               />
             );
           })}

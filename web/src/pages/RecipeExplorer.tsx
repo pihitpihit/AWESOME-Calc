@@ -7,6 +7,8 @@ import {
   iconUrl,
   itemByClass,
   items,
+  perMin,
+  rateLabel,
   recipes,
 } from "../lib/data";
 import type { Item, ItemCategory, Recipe } from "../types/data";
@@ -580,6 +582,7 @@ function RecipeCard({
             recipe.ingredients.map((s, i) => {
               const item = itemByClass.get(s.item);
               const highlighted = highlightClasses?.has(s.item);
+              const rate = perMin(s.amount, recipe.time_seconds);
               return (
                 <div
                   key={i}
@@ -600,6 +603,9 @@ function RecipeCard({
                   <span className="text-xs whitespace-nowrap">
                     ×{s.amount} {item ? displayName(item.name) : s.item}
                   </span>
+                  <span className="text-[10px] font-mono text-zinc-500 whitespace-nowrap">
+                    {rate}{rateLabel(item)}
+                  </span>
                 </div>
               );
             })
@@ -611,6 +617,7 @@ function RecipeCard({
         <div className="flex-1 min-w-0 flex flex-wrap gap-x-3 gap-y-1">
           {recipe.products.map((s, i) => {
             const item = itemByClass.get(s.item);
+            const rate = perMin(s.amount, recipe.time_seconds);
             return (
               <div key={i} className="inline-flex items-center gap-1 text-zinc-100">
                 {item && (
@@ -624,6 +631,9 @@ function RecipeCard({
                 )}
                 <span className="text-xs whitespace-nowrap">
                   ×{s.amount} {item ? displayName(item.name) : s.item}
+                </span>
+                <span className="text-[10px] font-mono text-zinc-500 whitespace-nowrap">
+                  {rate}{rateLabel(item)}
                 </span>
               </div>
             );
