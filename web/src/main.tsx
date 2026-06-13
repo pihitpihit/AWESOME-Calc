@@ -8,6 +8,8 @@ import { ItemDetail } from "./pages/ItemDetail";
 import { RecipesIndex } from "./pages/RecipesIndex";
 import { RecipeDetail } from "./pages/RecipeDetail";
 import { Calculator } from "./pages/Calculator";
+import { RecipeExplorer } from "./pages/RecipeExplorer";
+import { DependencyMap } from "./pages/DependencyMap";
 import { NotFound } from "./pages/NotFound";
 import "./index.css";
 
@@ -21,6 +23,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           <Route path="items/:slug" element={<ItemDetail />} />
           <Route path="recipes" element={<RecipesIndex />} />
           <Route path="recipes/:slug" element={<RecipeDetail />} />
+          <Route path="explorer" element={<RecipeExplorer />} />
+          <Route path="depmap" element={<DependencyMap />} />
           <Route path="calc" element={<Calculator />} />
           <Route path="calc/:slug" element={<Calculator />} />
           <Route path="404" element={<NotFound />} />
