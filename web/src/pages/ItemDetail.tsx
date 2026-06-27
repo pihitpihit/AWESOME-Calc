@@ -4,12 +4,10 @@ import {
   displayName,
   iconUrl,
   itemBySlug,
-  perMin,
-  rateLabel,
   recipeByClass,
 } from "../lib/data";
-import { RecipeRow } from "../components/RecipeRow";
 import { Section } from "../components/Section";
+import { RecipeCard } from "../components/RecipeCard";
 import { NotFound } from "./NotFound";
 
 export function ItemDetail() {
@@ -65,28 +63,24 @@ export function ItemDetail() {
             제작 가능 레시피 <span className="text-zinc-500 text-sm">({item.produced_by.length})</span>
           </>
         }
-        description="이 아이템을 산물로 가진 레시피 — 대체 포함"
+        description="이 아이템을 산물로 가진 레시피 — 대체 포함. 비교를 위해 재료·산물·분당 함께 표기."
       >
         {item.produced_by.length === 0 ? (
           <p className="text-zinc-500 text-sm">없음 (원자재이거나 채취 전용).</p>
         ) : (
-          <ul className="space-y-1.5">
+          <div className="grid gap-3 md:grid-cols-2">
             {item.produced_by.map((p) => {
               const r = recipeByClass.get(p.recipe);
-              const rate = r ? perMin(p.amount, r.time_seconds) : null;
+              if (!r) return null;
               return (
-                <li key={p.recipe} className="flex items-center justify-between gap-3 text-sm">
-                  <RecipeRow recipeClass={p.recipe} />
-                  <span className="font-mono text-xs text-zinc-400 whitespace-nowrap">
-                    +{p.amount}
-                    {rate !== null && (
-                      <span className="text-zinc-500 ml-1.5">({rate} {rateLabel(item)})</span>
-                    )}
-                  </span>
-                </li>
+                <RecipeCard
+                  key={p.recipe}
+                  recipe={r}
+                  highlightItemClass={item.class_name}
+                />
               );
             })}
-          </ul>
+          </div>
         )}
       </Section>
 
@@ -96,28 +90,24 @@ export function ItemDetail() {
             사용처 레시피 <span className="text-zinc-500 text-sm">({item.consumed_in.length})</span>
           </>
         }
-        description="이 아이템을 재료로 사용하는 레시피 — 대체 포함"
+        description="이 아이템을 재료로 사용하는 레시피 — 대체 포함."
       >
         {item.consumed_in.length === 0 ? (
           <p className="text-zinc-500 text-sm">없음 (최종 산물 또는 미사용).</p>
         ) : (
-          <ul className="space-y-1.5">
+          <div className="grid gap-3 md:grid-cols-2">
             {item.consumed_in.map((c) => {
               const r = recipeByClass.get(c.recipe);
-              const rate = r ? perMin(c.amount, r.time_seconds) : null;
+              if (!r) return null;
               return (
-                <li key={c.recipe} className="flex items-center justify-between gap-3 text-sm">
-                  <RecipeRow recipeClass={c.recipe} />
-                  <span className="font-mono text-xs text-zinc-400 whitespace-nowrap">
-                    −{c.amount}
-                    {rate !== null && (
-                      <span className="text-zinc-500 ml-1.5">({rate} {rateLabel(item)})</span>
-                    )}
-                  </span>
-                </li>
+                <RecipeCard
+                  key={c.recipe}
+                  recipe={r}
+                  highlightItemClass={item.class_name}
+                />
               );
             })}
-          </ul>
+          </div>
         )}
       </Section>
 
@@ -137,3 +127,4 @@ function Stat({ label, value }: { label: string; value: number | string | null |
     </div>
   );
 }
+
