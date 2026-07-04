@@ -68,7 +68,7 @@ export function ItemDetail() {
         {item.produced_by.length === 0 ? (
           <p className="text-zinc-500 text-sm">없음 (원자재이거나 채취 전용).</p>
         ) : (
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="space-y-3">
             {item.produced_by.map((p) => {
               const r = recipeByClass.get(p.recipe);
               if (!r) return null;
@@ -95,7 +95,7 @@ export function ItemDetail() {
         {item.consumed_in.length === 0 ? (
           <p className="text-zinc-500 text-sm">없음 (최종 산물 또는 미사용).</p>
         ) : (
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="space-y-3">
             {item.consumed_in.map((c) => {
               const r = recipeByClass.get(c.recipe);
               if (!r) return null;
